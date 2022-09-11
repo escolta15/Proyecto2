@@ -22,6 +22,7 @@ import java.util.Locale;
 public class FlightLaMancha {
 
 	static Scanner read=new Scanner(System.in);
+	static final String INPUT_DATA = "data.txt";
 	
 	/*********************************************************************
 	*
@@ -125,6 +126,9 @@ public class FlightLaMancha {
 					case 3:
 						columnLetter = 'D';
 					break;
+					default:
+						columnLetter = '-';
+					break;
 				}
 			String x = Integer.toString(row + 1);
 			String y = Character.toString(columnLetter);
@@ -201,23 +205,18 @@ public class FlightLaMancha {
 	*
 	* @param int total_clients: it counts all the clients
 	* @param int a: it accumulates the number of available seats.
-	* @param int number_tickets: number of the tickets
 	* @param int one_way_tickets: number of one-way tickets
 	* @param int return_tickets: number of return tickets
 	* @param String [][] seats_first: it saves the plane with the occupied seats.
 	* @param int F: the number of rows which has the plane.
-	* @param int i: rows of the plane
-	* @param int j: columns of the plane
 	* @param int [][] array_clients: array for the clients
 	* @param int [][] array_tickets: array with the tickets
 	* @param int [][] array_suitcases: array with the suitcases.
-	* @param int nsuitcases: the number of suitcases that the client carries.
 	* @param int total_suitcases: the counter of suitcases
 	* @param boolean [][] array_return: it controls if the seat is for return ticket.
 	* @param double price1way: price of the ticket one-way
 	* @param String [] [] seats_second: it saves the current seats.
-	* @param int clients_number: number of the clients 
-	* @param int option: variable for the program
+	* @param int clients_number: number of the clients
 	* @param int tickets: the counter of the tickets
 	* @param double total_price: it is the total and final price.
 	*
@@ -226,54 +225,101 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	public static int buyTickets(int total_clients,int a,String [][] seats_first,int F,int [][] array_clients,int [][] array_tickets,int [][] array_suitcases,boolean [][] array_return,double price1way,String [] [] seats_second){
-		int option=0, i = 0, j = 0, one_way_tickets = 0, number_tickets = 0, return_tickets = 0, clients_number = 0, nsuitcases = 0, total_suitcases=0;
+		int one_way_tickets = 0, return_tickets = 0, clients_number = 0, total_suitcases=0;
 		total_clients++;
 		clients_number=total_clients;
-		if(a!=0){//1st if
+		if(a != 0){
 			int tickets=selectTickets(a);//total tickets
-			for(number_tickets=1;number_tickets<=tickets;number_tickets++){
-				System.out.println("Ticket numbers is " + number_tickets + ":");
-				System.out.println("Put 1 if you want a one-way ticket or another number for a return ticket.");//Selection of one-way tickets or return tickets
-				option=read.nextInt();
-				if(option==1){
-					one_way_tickets++;
-				}//end if
-				else {return_tickets++;
-				}//end else
-				plane(seats_first);
-				do{
-					i=chooseRow(F);
-					j=chooseColumn();
-					if(seats_first [i][j].equals("0")){	
-						System.out.println("This seat is occupied.");
-					}//end if
-				}while(seats_first[i][j].equals("0"));
-				seats_first [i][j]="0";
-				array_clients [i][j]=clients_number;
-				a--;
-				nsuitcases=suitcases();//suitcases' counter
-				total_suitcases=total_suitcases+nsuitcases;
-				if(option==1){//Assignment to array
-					array_return[i][j]=false;
-				}//end if
-				else{array_return[i][j]=true;}//end else
-				array_suitcases[i][j]=nsuitcases;
-				array_tickets [i][j]=number_tickets;
-			}//end for
+			chooseTickets(tickets, one_way_tickets, return_tickets, seats_first, F, array_clients, clients_number, a, total_suitcases, array_tickets, array_suitcases, array_return);
 			double total_price=calculate_total_price (price1way,one_way_tickets,return_tickets,tickets,total_suitcases);//Calculation of the price
 			information(clients_number, tickets,array_clients, seats_second, array_tickets, array_suitcases, array_return,clients_number);//Print information
 			System.out.println("The total price is: " + total_price);
 			System.out.println("------------------------------------------------");
-			}//end 1st if
-			else{
-				System.out.println("The plane is full.");
-			}//end else
-			//Reload
-			total_suitcases=0;
-			one_way_tickets=0;
-			return_tickets=0;
-			return clients_number;
+		} else {
+			System.out.println("The plane is full.");
+		}
+		total_suitcases=0;
+		one_way_tickets=0;
+		return_tickets=0;
+		return clients_number;
 	}//end buyTickets method.
+	
+	/*********************************************************************
+	*
+	* Method name: chooseTickets
+	*
+	* Description of the Method: with this method the client can choose the tickets.
+	*
+	* @param int tickets: the counter of the tickets
+	* @param int one_way_tickets: number of one-way tickets
+	* @param int return_tickets: number of return tickets
+	* @param String [][] seats_first: it saves the plane with the occupied seats.
+	* @param int F: the number of rows which has the plane.
+	* @param int [][] array_clients: array for the clients
+	* @param int clients_number: number of the clients
+	* @param int a: it accumulates the number of available seats.
+	* @param int total_suitcases: the counter of suitcases
+	* @param int [][] array_tickets: array with the tickets
+	* @param int [][] array_suitcases: array with the suitcases.
+	* @param boolean [][] array_return: it controls if the seat is for return ticket.
+	* 
+	* @param int option: variable for the program
+	* @param int i: rows of the plane
+	* @param int j: columns of the plane
+	* @param int nsuitcases: the number of suitcases that the client carries.
+	* @param int number_tickets: number of the tickets
+	*
+	* void
+	*
+	*********************************************************************/ 
+	
+	public static void chooseTickets(int tickets, int one_way_tickets, int return_tickets, String [][] seats_first, int F, int [][] array_clients, int clients_number, int a, int total_suitcases, int [][] array_tickets,int [][] array_suitcases,boolean [][] array_return) {
+		int option = 0, i = 0, j = 0, nsuitcases = 0;
+		for(int number_tickets = 1; number_tickets <= tickets; number_tickets++){
+			System.out.println("Ticket numbers is " + number_tickets + ":");
+			System.out.println("Put 1 if you want a one-way ticket or another number for a return ticket.");
+			option=read.nextInt();
+			increaseTickets(option, one_way_tickets, return_tickets);
+			plane(seats_first);
+			do {
+				i = chooseRow(F);
+				j = chooseColumn();
+				if(seats_first [i][j].equals("0")){	
+					System.out.println("This seat is occupied.");
+				}
+			} while(seats_first[i][j].equals("0"));
+			seats_first [i][j]="0";
+			array_clients [i][j] = clients_number;
+			a--;
+			nsuitcases=suitcases();//suitcases' counter
+			total_suitcases=total_suitcases+nsuitcases;
+			array_return[i][j] = option == 1 ? false : true;
+			array_suitcases[i][j]=nsuitcases;
+			array_tickets [i][j]=number_tickets;
+		}//end for
+	}
+	
+	/*********************************************************************
+	*
+	* Method name: increaseTickets
+	*
+	* Description of the Method: increase the number of one way or return tickets.
+	*
+	* @param int option: variable for the program
+	* @param int one_way_tickets: number of one-way tickets
+	* @param int return_tickets: number of return tickets
+	*
+	* void
+	*
+	*********************************************************************/ 
+	
+	public static void increaseTickets(int option, int one_way_tickets, int return_tickets) {
+		if(option == 1) {
+			one_way_tickets++;
+		} else {
+			return_tickets++;
+		}
+	}
 	
 	/*********************************************************************
 	*
@@ -284,8 +330,6 @@ public class FlightLaMancha {
 	* @param int total_clients: it counts all the clients
 	* @param int clients_number: number of the clients 
 	* @param int [][] array_clients: array for the clients
-	* @param int i: rows of the plane
-	* @param int j: columns of the plane
 	* @param int ctickets: number of tickets which have been cancelled
 	* @param int [][] array_tickets: array with the tickets
 	* @param int [][] array_suitcases: array with the suitcases.
@@ -305,34 +349,75 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	public static void cancelTickets(int total_clients,int [][] array_clients,int [][] array_tickets,int [][] array_suitcases,double price1way,int a,String [][] seats_first,String [] [] seats_second,boolean [][] array_return){
-		if(total_clients>0){
-			int one_way_tickets = 0, return_tickets = 0, clients_number = 0, total_suitcases=0, ctickets=0;
-			int tickets=0;
+		if(total_clients > 0){
+			int one_way_tickets = 0, return_tickets = 0, total_suitcases=0, ctickets=0;
 			double total_price=0;
-			System.out.println("What number has the client?");
-			clients_number=read.nextInt();
-			while(clients_number<0 || clients_number>total_clients){
-				System.out.println("This client doesn't exist. Please, put the client's number:");
-				clients_number=read.nextInt();
-			}//end while
-			for(int i=0;i<array_clients.length;i++){
-				for(int j=0;j<array_clients[0].length;j++){
-					if(array_clients[i][j]==clients_number){
-						tickets++;
-					}//end if
-				}//end for
-			}//end for
+			int clients_number = getClientsNumber(total_clients);
+			int tickets = countClientTickets(array_clients,clients_number);
 			System.out.println("These are your client's tickets");
 			information(clients_number,tickets,array_clients,seats_second,array_tickets,array_suitcases,array_return,clients_number);
 			if(tickets>0){
 				tickets=tickets+ctickets;
 				ctickets=cancel(a,tickets,total_price,price1way,array_clients,seats_first,seats_second,array_tickets, return_tickets, one_way_tickets, total_suitcases, array_suitcases,array_return,clients_number);
 				a=a+ctickets;
-			}//end if
-			else{System.out.println("This client hasn't tickets.");}//end else
-		}//end if
-		else{System.out.println("There aren't clients, so you can't cancel.");}//end else
+			} else {
+				System.out.println("This client hasn't tickets.");
+			}
+		} else {
+			System.out.println("There aren't clients, so you can't cancel.");
+		}
 	}//end cancelTickets method.
+	
+	/*********************************************************************
+	*
+	* Method name: getClientsNumber
+	*
+	* Description of the Method: it obtains the number of the client.
+	*
+	* @param int total_clients: it counts all the clients
+	* @param int clients_number: number of the clients 
+	*
+	* @return Return value: clients_number
+	*
+	*********************************************************************/ 
+	
+	public static int getClientsNumber(int total_clients) {
+		System.out.println("What number has the client?");
+		int clients_number = read.nextInt();
+		while(clients_number < 0 || clients_number > total_clients){
+			System.out.println("This client doesn't exist. Please, put the client's number:");
+			clients_number=read.nextInt();
+		}
+		return clients_number;
+	}
+	
+	/*********************************************************************
+	*
+	* Method name: countClientTickets
+	*
+	* Description of the Method: it obtains the number client's tickets.
+	*
+	* @param int [][] array_clients: array for the clients
+	* @param int clients_number: number of the clients 
+	* @param int tickets: the counter of the tickets
+	* @param int i: rows of the plane
+	* @param int j: columns of the plane
+	*
+	* @return Return value: tickets
+	*
+	*********************************************************************/ 
+	
+	public static int countClientTickets(int [][] array_clients, int clients_number) {
+		int tickets = 0;
+		for(int i = 0; i < array_clients.length; i++){
+			for(int j = 0; j < array_clients[0].length; j++){
+				if(array_clients[i][j] == clients_number){
+					tickets++;
+				}
+			}
+		}
+		return tickets;
+	}
 	
 	/*********************************************************************
 	*
@@ -391,27 +476,49 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	public static void information(int tickets,int client,int [][]array_clients,String [][]seats_second,int [][]array_tickets,int [][]array_suitcases,boolean [][]array_return, int clients_number){
-			int i, j,ticketn;
-			for(ticketn=1;ticketn<=100;ticketn++){
-				for(i=0;i<seats_second.length;i++){
-					for(j=0;j<seats_second[0].length;j++){
+			for(int ticketn=1;ticketn <= tickets; ticketn++){
+				for(int i=0;i<seats_second.length;i++){
+					for(int j=0;j<seats_second[0].length;j++){
 						if(array_clients[i][j]==client){
-							if(array_tickets [i][j]==ticketn){
-								System.out.println("Client's number: "+clients_number);
-								System.out.println("Ticket number " + ticketn + ": ");
-								System.out.println("Position: "+ seats_second[i][j]+". ");
-								if(array_return[i][j]==true){
-									System.out.println("Return.");
-								}//end if
-								else{
-									System.out.println("One-way.");}//end else
-								System.out.println("Suitcases: "+ array_suitcases[i][j]+".");
-							}//end if
+							showTicketInformation(i, j, ticketn, array_tickets, clients_number, seats_second, array_suitcases, array_return);
 						}//end if
 					}//end for
 				}//end for
 			}//end for
-	}//end information method	
+	}//end information method
+	
+	/*********************************************************************
+	*
+	* Method name: showTicketInformation
+	*
+	* Description of the Method: It shows the information of a ticket.
+	* 
+	* @param int i: rows of the plane
+	* @param int j: columns of the plane
+	* @param int ticketn: id of the ticket
+	* @param int [][]array_tickets: array with the tickets
+	* @param int clients_number: number of the clients
+	* @param String [][]seats_second: it saves the current seats.
+	* @param int [][]array_suitcases: array with the suitcases.
+	* @param boolean [][]array_return: it controls if the seat is for return ticket.
+	*
+	* void
+	*
+	*********************************************************************/ 
+	
+	public static void showTicketInformation(int i, int j, int ticketn, int [][]array_tickets, int clients_number, String [][]seats_second, int [][]array_suitcases,boolean [][]array_return) {
+		if(array_tickets [i][j] == ticketn){
+			System.out.println("Client's number: " + clients_number);
+			System.out.println("Ticket number " + ticketn + ": ");
+			System.out.println("Position: "+ seats_second[i][j]+". ");
+			if(array_return[i][j] == true){
+				System.out.println("Return.");
+			} else {
+				System.out.println("One-way.");
+			}
+			System.out.println("Suitcases: "+ array_suitcases[i][j]+".");
+		}//end if
+	}
 		
 	/*********************************************************************
 	*
@@ -445,49 +552,95 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	public static int cancel(int a,int tickets,double p,double total_price,int [][] user_array, String [][] seats_first,String [][] seats_second,int [][] array_tickets,int return_tickets,int one_way_tickets, int total_suitcase, int [][] array_suitcases,boolean [][]array_return,int client){
-			int cancel_tickets=0,i=0,j=0,option=0;
+			int cancel_tickets = 0, option = 0;
 			do{
-				System.out.println("Which ticket do you want to cancel?");
-				int ticketn=read.nextInt();
-				while(ticketn<=0 || ticketn>tickets){
-					System.out.println("It cannot be possible. Please, select which ticket you want to cancel:");
-					ticketn=read.nextInt();
-				}//end while
-				for (i=0;i<seats_first.length;i++){
-					for (j=0;j<seats_first[0].length;j++){
-						if(user_array[i][j]==client){
-							if(array_tickets [i][j]==ticketn){
-								if(array_return[i][j]==true){
-									return_tickets--;
-								}//end if
-								else{one_way_tickets--;}//end else
-								total_suitcase=total_suitcase-array_suitcases[i][j];
-								seats_first[i][j]=seats_second[i][j];
-								array_tickets[i][j]=0;
-								user_array[i][j]=0;
-								cancel_tickets++;
-							}//end if
+				int ticketn = getTicketToCancel(tickets);
+				for (int i = 0; i < seats_first.length; i++){
+					for (int j = 0; j < seats_first[0].length; j++){
+						if(user_array[i][j] == client){
+							removeTicket(i, j, array_tickets, ticketn, array_return, return_tickets, one_way_tickets, total_suitcase, array_suitcases, seats_first, seats_second, user_array, cancel_tickets);
 						}//end if
 					}//end for
 				}//end for
-				double new_total_price=calculate_total_price(p,tickets,one_way_tickets,return_tickets,total_suitcase);//New total_price
+				double new_total_price=calculate_total_price(p,tickets,one_way_tickets,return_tickets,total_suitcase);
 				if (new_total_price==total_price){
 					System.out.println("It cannot be possible. You cannot cancel the same ticket twice.");
-				}//end if
-				else{
+				} else {
 					if(total_price>0){
 						System.out.println("The total price is: " + new_total_price);
-					}//end if
-				}//end else
+					}
+				}
 				System.out.println("Put 1 to cancel another ticket or put other number to continue.");
 				option=read.nextInt();
 				total_price=new_total_price;
-			}while (option==1 && cancel_tickets!=tickets);
-			if(cancel_tickets==tickets){
+			} while (option==1 && cancel_tickets!=tickets);
+			if(cancel_tickets == tickets){
 				System.out.println("It cannot be possible. You cannot cancel more tickets because you don't have it.");
 			}//end if
 			return cancel_tickets;
 	}//end cancel method.
+	
+	/*********************************************************************
+	*
+	* Method name: removeTicket
+	*
+	* Description of the Method: it removes the ticket that client wants
+	*
+	* @param int i: rows of the plane
+	* @param int j: columns of the plane
+	* @param int [][] array_tickets: array with the tickets
+	* @param int ticketn: id of the ticket
+	* @param boolean [][]array_return: it controls if the seat is for return ticket.
+	* @param int return_tickets: number of return tickets
+	* @param int one_way_tickets: number of one-way tickets
+	* @param int total_suitcase: the counter of suitcases
+	* @param int [][] array_suitcases: array with the suitcases.
+	* @param String [][] seats_first: it saves the plane with the occupied seats.
+	* @param String [][] seats_second: it saves the current seats.
+	* @param int [][] user_array: array for the clients (== array_clients)
+	* @param int cancel_tickets: number of tickets which have been cancelled
+	*
+	* void
+	*
+	*********************************************************************/ 
+	
+	public static void removeTicket(int i, int j, int [][] array_tickets, int ticketn, boolean [][]array_return, int return_tickets, int one_way_tickets, int total_suitcase, int [][] array_suitcases, String [][] seats_first,String [][] seats_second, int [][] user_array, int cancel_tickets) {
+		if(array_tickets [i][j] == ticketn){
+			if(array_return[i][j] == true){
+				return_tickets--;
+			} else {
+				one_way_tickets--;
+			}
+			total_suitcase=total_suitcase-array_suitcases[i][j];
+			seats_first[i][j]=seats_second[i][j];
+			array_tickets[i][j]=0;
+			user_array[i][j]=0;
+			cancel_tickets++;
+		}//end if
+	}
+	
+	/*********************************************************************
+	*
+	* Method name: cancel
+	*
+	* Description of the Method: it cancels the tickets that client wants
+	*
+	* @param int tickets: the counter of the tickets
+	* @param int ticketn: id of the ticket
+	*
+	* @return Return value: ticketn
+	*
+	*********************************************************************/ 
+	
+	public static int getTicketToCancel(int tickets) {
+		System.out.println("Which ticket do you want to cancel?");
+		int ticketn = read.nextInt();
+		while(ticketn <= 0 || ticketn > tickets){
+			System.out.println("It cannot be possible. Please, select which ticket you want to cancel:");
+			ticketn=read.nextInt();
+		}
+		return ticketn;
+	}
 		
 	/*********************************************************************
 	*
@@ -720,7 +873,7 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	private static int readRows() throws FileNotFoundException {
-		File f = new File("data.txt");
+		File f = new File(INPUT_DATA);
 		int rows = 0;
 		Scanner read = new Scanner(f);
 		read.useLocale(Locale.ENGLISH);
@@ -752,7 +905,7 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	private static int readColumns() throws FileNotFoundException {
-		File f = new File("data.txt");
+		File f = new File(INPUT_DATA);
 		int columns = 0;
 		Scanner read = new Scanner(f);
 		read.useLocale(Locale.ENGLISH);
@@ -784,7 +937,7 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	private static double readPrice () throws FileNotFoundException {
-		File f = new File("data.txt");
+		File f = new File(INPUT_DATA);
 		double price = 0;
 		Scanner read = new Scanner(f);
 		read.useLocale(Locale.ENGLISH);
