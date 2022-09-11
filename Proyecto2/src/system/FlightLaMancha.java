@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.InputMismatchException;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /*********************************************************************
 *
@@ -22,6 +24,7 @@ import java.util.Locale;
 public class FlightLaMancha {
 
 	static Scanner read=new Scanner(System.in);
+	static Logger logger = Logger.getLogger(FlightLaMancha.class.getName());
 	static final String INPUT_DATA = "data.txt";
 	
 	/*********************************************************************
@@ -60,7 +63,7 @@ public class FlightLaMancha {
 	
 	public static void program() throws IOException{
 		read.useLocale(Locale.US);
-		System.out.println("Welcome to our program to buy your tickets for the flight from Madrid to London.");
+		logger.log(Level.INFO, "Welcome to our program to buy your tickets for the flight from Madrid to London.");
 		
 		int rows = readRows();
 		int columns = readColumns();
@@ -85,11 +88,11 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	public static void principal_menu() {
-		System.out.println("Please, introduce an option:");
-		System.out.println("1) Buy tickets.");
-		System.out.println("2) Cancel reserved tickets.");
-		System.out.println("3) Show available seats.");
-		System.out.println("0 or other number to finish.");
+		logger.log(Level.INFO, "Please, introduce an option:");
+		logger.log(Level.INFO, "1) Buy tickets.");
+		logger.log(Level.INFO, "2) Cancel reserved tickets.");
+		logger.log(Level.INFO, "3) Show available seats.");
+		logger.log(Level.INFO, "0 or other number to finish.");
 	}//end principal_menu method.
 	
 	/*********************************************************************
