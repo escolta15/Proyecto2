@@ -234,16 +234,13 @@ public class FlightLaMancha {
 		if(a != 0){
 			int tickets=selectTickets(a);//total tickets
 			chooseTickets(tickets, one_way_tickets, return_tickets, seats_first, F, array_clients, clients_number, a, total_suitcases, array_tickets, array_suitcases, array_return);
-			double total_price=calculate_total_price (price1way,one_way_tickets,return_tickets,tickets,total_suitcases);//Calculation of the price
+			double total_price=calculate_total_price(price1way,one_way_tickets,return_tickets,tickets,total_suitcases);//Calculation of the price
 			information(clients_number, tickets,array_clients, seats_second, array_tickets, array_suitcases, array_return,clients_number);//Print information
-			logger.log(Level.INFO, "The total price is: " + total_price);
+			logger.log(Level.INFO, String.format("The total price is: %f", total_price));
 			logger.log(Level.INFO, "------------------------------------------------");
 		} else {
 			logger.log(Level.WARNING, "The plane is full.");
 		}
-		total_suitcases=0;
-		one_way_tickets=0;
-		return_tickets=0;
 		return clients_number;
 	}//end buyTickets method.
 	
@@ -279,7 +276,6 @@ public class FlightLaMancha {
 	public static void chooseTickets(int tickets, int one_way_tickets, int return_tickets, String [][] seats_first, int F, int [][] array_clients, int clients_number, int a, int total_suitcases, int [][] array_tickets,int [][] array_suitcases,boolean [][] array_return) {
 		int option = 0, i = 0, j = 0, nsuitcases = 0;
 		for(int number_tickets = 1; number_tickets <= tickets; number_tickets++){
-			System.out.println("Ticket numbers is " + number_tickets + ":");
 			logger.log(Level.INFO, "Ticket numbers is " + number_tickets + ":");
 			logger.log(Level.INFO, "Put 1 if you want a one-way ticket or another number for a return ticket.");
 			option=read.nextInt();
@@ -358,7 +354,7 @@ public class FlightLaMancha {
 			double total_price=0;
 			int clients_number = getClientsNumber(total_clients);
 			int tickets = countClientTickets(array_clients,clients_number);
-			logger.log(Level.INFO, "These are your client's tickets");
+			logger.log(Level.INFO, "These are your client\'s tickets");
 			information(clients_number,tickets,array_clients,seats_second,array_tickets,array_suitcases,array_return,clients_number);
 			if(tickets>0){
 				tickets=tickets+ctickets;
