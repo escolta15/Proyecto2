@@ -27,7 +27,12 @@ public class FlightLaMancha {
 	static Logger logger = Logger.getLogger(FlightLaMancha.class.getName());
 	static final String INPUT_DATA = "data.txt";
 	
+	private int rows;
+	private int columns;
+	private double ticketPrice;
 	private int availableSeats;
+	private String [] [] currentSeats;
+	private String [] [] occupiedSeats;
 	
 	/*********************************************************************
 	*
@@ -43,8 +48,13 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public FlightLaMancha(int rows, int columns) {
+	public FlightLaMancha(int rows, int columns, double ticketPrice) {
+		this.rows = rows;
+		this.columns = columns;
+		this.ticketPrice = ticketPrice;
 		this.availableSeats = rows * columns;
+		this.currentSeats = new String [rows][columns];
+		this.occupiedSeats = new String [rows][columns];
 	}
 	
 	/*********************************************************************
@@ -81,19 +91,15 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void program() throws IOException{
+	public static void program() throws IOException {
 		read.useLocale(Locale.US);
 		logger.log(Level.INFO, "Welcome to our program to buy your tickets for the flight from Madrid to London.");
-		
 		int rows = readRows();
 		int columns = readColumns();
 		double ticketPrice = readPrice();
-		
-		String [] [] currentSeats = new String [rows][columns];
-		String [] [] occupiedSeats = new String [rows][columns];
-		buildPlane(currentSeats,occupiedSeats);
-		
-		principal_switch(rows, columns, ticketPrice, occupiedSeats, currentSeats);
+		FlightLaMancha flight = new FlightLaMancha(rows, columns, ticketPrice);
+		buildPlane(flight);
+		principal_switch(flight);
 	}//end program method.
 
 	
@@ -131,11 +137,11 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void buildPlane(String [][] currentSeats, String [][] occupiedSeats) {
+	public static void buildPlane(FlightLaMancha flight) {
 		int row = 0, column = 0;
 		char columnLetter;
-		for(row = 0; row < occupiedSeats.length; row++) {
-			for(column = 0; column < occupiedSeats[0].length; column++) {
+		for(row = 0; row < flight.occupiedSeats.length; row++) {
+			for(column = 0; column < flight.occupiedSeats[0].length; column++) {
 				switch (column){
 					case 0:
 						columnLetter = 'A';
@@ -155,8 +161,8 @@ public class FlightLaMancha {
 				}
 				String x = Integer.toString(row + 1);
 				String y = Character.toString(columnLetter);
-				occupiedSeats[row][column] = x + y;
-				currentSeats[row][column] = x + y;
+				flight.occupiedSeats[row][column] = x + y;
+				flight.currentSeats[row][column] = x + y;
 			}
 		}
 	}//end seatsArrays method.
@@ -185,15 +191,13 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void principal_switch(int rows, int columns, double price1Way, String [][] occupiedSeats,String [] [] currentSeats) throws IOException {
-		boolean [][] isReturnTickets = new boolean [rows][columns];
-		int [][] tickets = new int [rows][columns];
-		int [][] clients = new int [rows][columns];
-		int [][] suitcases = new int [rows][columns];
+	public static void principal_switch(FlightLaMancha flight) throws IOException {
+		boolean [][] isReturnTickets = new boolean [flight.rows][flight.columns];
+		int [][] tickets = new int [flight.rows][flight.columns];
+		int [][] clients = new int [flight.rows][flight.columns];
+		int [][] suitcases = new int [flight.rows][flight.columns];
 		int option = 0, totalClients = 0;
 		boolean error = false;
-		
-		FlightLaMancha flight = new FlightLaMancha(rows, columns);
 		do{
 			try {
 				error = false;
@@ -201,16 +205,16 @@ public class FlightLaMancha {
 				option = read.nextInt();
 				switch (option){
 					case 1:
-						totalClients = buyTickets(flight, totalClients, occupiedSeats, rows, clients, tickets, suitcases, isReturnTickets, price1Way, currentSeats);
+						totalClients = buyTickets(flight, totalClients, clients, tickets, suitcases, isReturnTickets);
 					break;
 					case 2:
-						cancelTickets(flight, totalClients, clients, tickets, suitcases, price1Way, occupiedSeats, currentSeats, isReturnTickets);
+						cancelTickets(flight, totalClients, clients, tickets, suitcases, isReturnTickets);
 					break;
 					case 3:
-						showPlane(flight, occupiedSeats, rows);
+						showPlane(flight);
 					break;
 					default:
-						writePlane(occupiedSeats);
+						writePlane(flight);
 					break;
 				}
 			} catch(InputMismatchException inputException) {
@@ -244,25 +248,25 @@ public class FlightLaMancha {
 	* @param int tickets: the counter of the tickets
 	* @param double total_price: it is the total and final price.
 	*
-	* @return Return value: clients_number.
+	* @return Return value: total_clients.
 	*
 	*********************************************************************/ 
 	
-	public static int buyTickets(FlightLaMancha flight, int total_clients,String [][] seats_first,int F,int [][] array_clients,int [][] array_tickets,int [][] array_suitcases,boolean [][] array_return,double price1way,String [] [] seats_second){
-		int one_way_tickets = 0, return_tickets = 0, clients_number = 0, total_suitcases=0;
+	public static int buyTickets(FlightLaMancha flight, int total_clients,int [][] array_clients,int [][] array_tickets,int [][] array_suitcases,boolean [][] array_return){
+		int one_way_tickets = 0, return_tickets = 0, total_suitcases=0;
 		total_clients++;
-		clients_number=total_clients;
+		int clients_number=total_clients;
 		if(flight.availableSeats != 0){
 			int tickets=selectTickets(flight);//total tickets
-			chooseTickets(flight, tickets, one_way_tickets, return_tickets, seats_first, F, array_clients, clients_number, total_suitcases, array_tickets, array_suitcases, array_return);
-			double total_price=calculate_total_price(price1way,one_way_tickets,return_tickets,tickets,total_suitcases);//Calculation of the price
-			information(clients_number, tickets,array_clients, seats_second, array_tickets, array_suitcases, array_return,clients_number);//Print information
+			chooseTickets(flight, tickets, one_way_tickets, return_tickets, array_clients, clients_number, total_suitcases, array_tickets, array_suitcases, array_return);
+			double total_price=calculate_total_price(flight,one_way_tickets,return_tickets,tickets,total_suitcases);//Calculation of the price
+			information(flight, clients_number, tickets,array_clients, array_tickets, array_suitcases, array_return,clients_number);//Print information
 			logger.log(Level.INFO, String.format("The total price is: %f", total_price));
 			logger.log(Level.INFO, "------------------------------------------------");
 		} else {
 			logger.log(Level.WARNING, "The plane is full.");
 		}
-		return clients_number;
+		return total_clients;
 	}//end buyTickets method.
 	
 	/*********************************************************************
@@ -294,22 +298,22 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void chooseTickets(FlightLaMancha flight, int tickets, int one_way_tickets, int return_tickets, String [][] seats_first, int F, int [][] array_clients, int clients_number, int total_suitcases, int [][] array_tickets,int [][] array_suitcases,boolean [][] array_return) {
+	public static void chooseTickets(FlightLaMancha flight, int tickets, int one_way_tickets, int return_tickets, int [][] array_clients, int clients_number, int total_suitcases, int [][] array_tickets,int [][] array_suitcases,boolean [][] array_return) {
 		int option = 0, i = 0, j = 0, nsuitcases = 0;
 		for(int number_tickets = 1; number_tickets <= tickets; number_tickets++){
 			logger.log(Level.INFO, "Ticket numbers is " + number_tickets + ":");
 			logger.log(Level.INFO, "Put 1 if you want a one-way ticket or another number for a return ticket.");
 			option=read.nextInt();
 			increaseTickets(option, one_way_tickets, return_tickets);
-			plane(seats_first);
+			plane(flight);
 			do {
-				i = chooseRow(F);
+				i = chooseRow(flight);
 				j = chooseColumn();
-				if(seats_first [i][j].equals("0")){	
+				if(flight.occupiedSeats [i][j].equals("0")){	
 					logger.log(Level.WARNING, "This seat is occupied.");
 				}
-			} while(seats_first[i][j].equals("0"));
-			seats_first [i][j]="0";
+			} while(flight.occupiedSeats[i][j].equals("0"));
+			flight.occupiedSeats [i][j]="0";
 			array_clients [i][j] = clients_number;
 			flight.availableSeats--;
 			nsuitcases=suitcases();//suitcases' counter
@@ -369,17 +373,17 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void cancelTickets(FlightLaMancha flight, int total_clients,int [][] array_clients,int [][] array_tickets,int [][] array_suitcases,double price1way,String [][] seats_first,String [] [] seats_second,boolean [][] array_return){
+	public static void cancelTickets(FlightLaMancha flight, int total_clients,int [][] array_clients,int [][] array_tickets,int [][] array_suitcases,boolean [][] array_return){
 		if(total_clients > 0){
 			int one_way_tickets = 0, return_tickets = 0, total_suitcases=0, ctickets=0;
 			double total_price=0;
 			int clients_number = getClientsNumber(total_clients);
 			int tickets = countClientTickets(array_clients,clients_number);
 			logger.log(Level.INFO, "These are your client\'s tickets");
-			information(clients_number,tickets,array_clients,seats_second,array_tickets,array_suitcases,array_return,clients_number);
+			information(flight, clients_number,tickets,array_clients,array_tickets,array_suitcases,array_return,clients_number);
 			if(tickets>0){
 				tickets=tickets+ctickets;
-				ctickets=cancel(tickets,total_price,price1way,array_clients,seats_first,seats_second,array_tickets, return_tickets, one_way_tickets, total_suitcases, array_suitcases,array_return,clients_number);
+				ctickets=cancel(flight, tickets,total_price,array_clients,array_tickets, return_tickets, one_way_tickets, total_suitcases, array_suitcases,array_return,clients_number);
 				flight.availableSeats += ctickets;
 			} else {
 				logger.log(Level.WARNING, "This client hasn't tickets.");	
@@ -455,16 +459,16 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void showPlane(FlightLaMancha flight, String [][] seats_first,int F){
-		plane(seats_first);
+	public static void showPlane(FlightLaMancha flight){
+		plane(flight);
 		logger.log(Level.INFO, "There are available seats");
 		logger.log(Level.INFO, "Put 1 to check if a seat is free or put other number to continue.");
 		int option=read.nextInt();
 		if (option==1){
 			do{
-				int i=chooseRow(F);
+				int i=chooseRow(flight);
 				int j=chooseColumn();
-				if (seats_first[i][j].equals("0")){
+				if (flight.occupiedSeats[i][j].equals("0")){
 					logger.log(Level.WARNING, "This seat isn't available.");
 				} else{
 					logger.log(Level.INFO, "This seat is available.");
@@ -497,12 +501,12 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void information(int tickets,int client,int [][]array_clients,String [][]seats_second,int [][]array_tickets,int [][]array_suitcases,boolean [][]array_return, int clients_number){
+	public static void information(FlightLaMancha flight, int tickets,int client,int [][]array_clients,int [][]array_tickets,int [][]array_suitcases,boolean [][]array_return, int clients_number){
 			for(int ticketn=1;ticketn <= tickets; ticketn++){
-				for(int i=0;i<seats_second.length;i++){
-					for(int j=0;j<seats_second[0].length;j++){
+				for(int i=0;i<flight.currentSeats.length;i++){
+					for(int j=0;j<flight.currentSeats[0].length;j++){
 						if(array_clients[i][j]==client){
-							showTicketInformation(i, j, ticketn, array_tickets, clients_number, seats_second, array_suitcases, array_return);
+							showTicketInformation(flight, i, j, ticketn, array_tickets, clients_number, array_suitcases, array_return);
 						}//end if
 					}//end for
 				}//end for
@@ -528,11 +532,11 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void showTicketInformation(int i, int j, int ticketn, int [][]array_tickets, int clients_number, String [][]seats_second, int [][]array_suitcases,boolean [][]array_return) {
+	public static void showTicketInformation(FlightLaMancha flight, int i, int j, int ticketn, int [][]array_tickets, int clients_number, int [][]array_suitcases,boolean [][]array_return) {
 		if(array_tickets [i][j] == ticketn){
 			logger.log(Level.INFO, "Client's number: " + clients_number);
 			logger.log(Level.INFO, "Ticket number " + ticketn + ": ");
-			logger.log(Level.INFO, "Position: "+ seats_second[i][j]+". ");
+			logger.log(Level.INFO, "Position: "+ flight.currentSeats[i][j]+". ");
 			if(array_return[i][j] == true){
 				logger.log(Level.INFO, "Return.");
 			} else {
@@ -573,18 +577,18 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static int cancel(int tickets,double p,double total_price,int [][] user_array, String [][] seats_first,String [][] seats_second,int [][] array_tickets,int return_tickets,int one_way_tickets, int total_suitcase, int [][] array_suitcases,boolean [][]array_return,int client){
+	public static int cancel(FlightLaMancha flight, int tickets,double total_price,int [][] user_array,int [][] array_tickets,int return_tickets,int one_way_tickets, int total_suitcase, int [][] array_suitcases,boolean [][]array_return,int client){
 			int cancel_tickets = 0, option = 0;
 			do{
 				int ticketn = getTicketToCancel(tickets);
-				for (int i = 0; i < seats_first.length; i++){
-					for (int j = 0; j < seats_first[0].length; j++){
+				for (int i = 0; i < flight.occupiedSeats.length; i++){
+					for (int j = 0; j < flight.occupiedSeats[0].length; j++){
 						if(user_array[i][j] == client){
-							removeTicket(i, j, array_tickets, ticketn, array_return, return_tickets, one_way_tickets, total_suitcase, array_suitcases, seats_first, seats_second, user_array, cancel_tickets);
+							removeTicket(flight, i, j, array_tickets, ticketn, array_return, return_tickets, one_way_tickets, total_suitcase, array_suitcases, user_array, cancel_tickets);
 						}//end if
 					}//end for
 				}//end for
-				double new_total_price=calculate_total_price(p,tickets,one_way_tickets,return_tickets,total_suitcase);
+				double new_total_price=calculate_total_price(flight, tickets,one_way_tickets,return_tickets,total_suitcase);
 				if (new_total_price==total_price){
 					logger.log(Level.WARNING, "It cannot be possible. You cannot cancel the same ticket twice.");
 				} else {
@@ -626,7 +630,7 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void removeTicket(int i, int j, int [][] array_tickets, int ticketn, boolean [][]array_return, int return_tickets, int one_way_tickets, int total_suitcase, int [][] array_suitcases, String [][] seats_first,String [][] seats_second, int [][] user_array, int cancel_tickets) {
+	public static void removeTicket(FlightLaMancha flight, int i, int j, int [][] array_tickets, int ticketn, boolean [][]array_return, int return_tickets, int one_way_tickets, int total_suitcase, int [][] array_suitcases, int [][] user_array, int cancel_tickets) {
 		if(array_tickets [i][j] == ticketn){
 			if(array_return[i][j] == true){
 				return_tickets--;
@@ -634,7 +638,7 @@ public class FlightLaMancha {
 				one_way_tickets--;
 			}
 			total_suitcase=total_suitcase-array_suitcases[i][j];
-			seats_first[i][j]=seats_second[i][j];
+			flight.occupiedSeats[i][j]=flight.currentSeats[i][j];
 			array_tickets[i][j]=0;
 			user_array[i][j]=0;
 			cancel_tickets++;
@@ -678,13 +682,13 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void plane(String[][] seats_first){
+	public static void plane(FlightLaMancha flight){
 		int i, j;
 		logger.log(Level.INFO, "The seats with 0 are occupied. The rest are free.");
-		for(i=0;i<seats_first.length;i++){
-			for(j=0;j<seats_first[0].length;j++){
-				System.out.print(seats_first [i][j]+"  ");
-				logger.log(Level.INFO, seats_first [i][j]+"  ");
+		for(i=0;i<flight.occupiedSeats.length;i++){
+			for(j=0;j<flight.occupiedSeats[0].length;j++){
+				System.out.print(flight.occupiedSeats [i][j]+"  ");
+				logger.log(Level.INFO, flight.occupiedSeats [i][j]+"  ");
 			}//end for
 			logger.log(Level.INFO, "");
 		}//end for
@@ -703,10 +707,10 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static int chooseRow(int F){
+	public static int chooseRow(FlightLaMancha flight){
 		logger.log(Level.INFO, "In which row do you want your seat?");
 		int i=read.nextInt();
-		while(i>F || i<=0) {
+		while(i>flight.rows || i<=0) {
 			logger.log(Level.WARNING, "It cannot be possible, it must be between 1 and \"+F+\". Please, put the row you want your seat:");
 			i=read.nextInt();
 		}//end while
@@ -835,10 +839,10 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static double calculate_total_price (double p,int one_way_tickets,int return_tickets,int tickets,int total_suitcase){
+	public static double calculate_total_price (FlightLaMancha flight,int one_way_tickets,int return_tickets,int tickets,int total_suitcase){
 		double discount=0.75,suitcase_price=15,group=6,discount_group=0.8;
-		double one_way_price=p*one_way_tickets;
-		double return_price=2*p*return_tickets*discount;
+		double one_way_price=flight.ticketPrice*one_way_tickets;
+		double return_price=2*flight.ticketPrice*return_tickets*discount;
 		double t_suitcase_price=total_suitcase*suitcase_price;
 		double total_price=one_way_price+return_price+t_suitcase_price;
 		if (tickets>=group){
@@ -866,12 +870,12 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void writePlane(String[][] seats_first) throws IOException {
+	public static void writePlane(FlightLaMancha flight) throws IOException {
 		int row, column;
 		PrintWriter writer= new PrintWriter(new FileWriter("aircraft.txt"));
-		for(row=0;row<seats_first.length;row++){
-			for(column=0;column<seats_first[0].length;column++){
-				writer.println(seats_first[row][column]);
+		for(row=0;row<flight.occupiedSeats.length;row++){
+			for(column=0;column<flight.occupiedSeats[0].length;column++){
+				writer.println(flight.occupiedSeats[row][column]);
 			}//end for
 		}//end for
 	    writer.close();
