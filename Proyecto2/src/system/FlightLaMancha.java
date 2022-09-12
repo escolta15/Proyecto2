@@ -113,7 +113,7 @@ public class FlightLaMancha {
 	
 	public static void buildPlane(String [][] currentSeats, String [][] occupiedSeats) {
 		int row = 0, column = 0;
-		char columnLetter = 'A';
+		char columnLetter;
 		for(row = 0; row < occupiedSeats.length; row++) {
 			for(column = 0; column< occupiedSeats[0].length; column++) {
 				switch (column){
@@ -194,7 +194,7 @@ public class FlightLaMancha {
 				}
 			} catch(InputMismatchException inputException) {
 				error = true;
-				System.out.println("Please, introduce a correct option");
+				logger.log(Level.WARNING, "Please, introduce a correct option");
 				read.nextLine();
 			}
 		} while((option > 0 && option <=3) || error == true);
@@ -236,10 +236,10 @@ public class FlightLaMancha {
 			chooseTickets(tickets, one_way_tickets, return_tickets, seats_first, F, array_clients, clients_number, a, total_suitcases, array_tickets, array_suitcases, array_return);
 			double total_price=calculate_total_price (price1way,one_way_tickets,return_tickets,tickets,total_suitcases);//Calculation of the price
 			information(clients_number, tickets,array_clients, seats_second, array_tickets, array_suitcases, array_return,clients_number);//Print information
-			System.out.println("The total price is: " + total_price);
-			System.out.println("------------------------------------------------");
+			logger.log(Level.INFO, "The total price is: " + total_price);
+			logger.log(Level.INFO, "------------------------------------------------");
 		} else {
-			System.out.println("The plane is full.");
+			logger.log(Level.WARNING, "The plane is full.");
 		}
 		total_suitcases=0;
 		one_way_tickets=0;
@@ -280,7 +280,8 @@ public class FlightLaMancha {
 		int option = 0, i = 0, j = 0, nsuitcases = 0;
 		for(int number_tickets = 1; number_tickets <= tickets; number_tickets++){
 			System.out.println("Ticket numbers is " + number_tickets + ":");
-			System.out.println("Put 1 if you want a one-way ticket or another number for a return ticket.");
+			logger.log(Level.INFO, "Ticket numbers is " + number_tickets + ":");
+			logger.log(Level.INFO, "Put 1 if you want a one-way ticket or another number for a return ticket.");
 			option=read.nextInt();
 			increaseTickets(option, one_way_tickets, return_tickets);
 			plane(seats_first);
@@ -288,7 +289,7 @@ public class FlightLaMancha {
 				i = chooseRow(F);
 				j = chooseColumn();
 				if(seats_first [i][j].equals("0")){	
-					System.out.println("This seat is occupied.");
+					logger.log(Level.WARNING, "This seat is occupied.");
 				}
 			} while(seats_first[i][j].equals("0"));
 			seats_first [i][j]="0";
@@ -357,17 +358,17 @@ public class FlightLaMancha {
 			double total_price=0;
 			int clients_number = getClientsNumber(total_clients);
 			int tickets = countClientTickets(array_clients,clients_number);
-			System.out.println("These are your client's tickets");
+			logger.log(Level.INFO, "These are your client's tickets");
 			information(clients_number,tickets,array_clients,seats_second,array_tickets,array_suitcases,array_return,clients_number);
 			if(tickets>0){
 				tickets=tickets+ctickets;
 				ctickets=cancel(a,tickets,total_price,price1way,array_clients,seats_first,seats_second,array_tickets, return_tickets, one_way_tickets, total_suitcases, array_suitcases,array_return,clients_number);
 				a=a+ctickets;
 			} else {
-				System.out.println("This client hasn't tickets.");
+				logger.log(Level.WARNING, "This client hasn't tickets.");	
 			}
 		} else {
-			System.out.println("There aren't clients, so you can't cancel.");
+			logger.log(Level.WARNING, "There aren't clients, so you can't cancel.");	
 		}
 	}//end cancelTickets method.
 	
@@ -385,10 +386,10 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	public static int getClientsNumber(int total_clients) {
-		System.out.println("What number has the client?");
+		logger.log(Level.INFO, "What number has the client?");
 		int clients_number = read.nextInt();
 		while(clients_number < 0 || clients_number > total_clients){
-			System.out.println("This client doesn't exist. Please, put the client's number:");
+			logger.log(Level.WARNING, "This client doesn't exist. Please, put the client's number:");
 			clients_number=read.nextInt();
 		}
 		return clients_number;
@@ -439,18 +440,19 @@ public class FlightLaMancha {
 	
 	public static void showPlane(String [][] seats_first, int a,int F){
 		plane(seats_first);
-		System.out.println("There are available seats");
-		System.out.println("Put 1 to check if a seat is free or put other number to continue.");
+		logger.log(Level.INFO, "There are available seats");
+		logger.log(Level.INFO, "Put 1 to check if a seat is free or put other number to continue.");
 		int option=read.nextInt();
 		if (option==1){
 			do{
 				int i=chooseRow(F);
 				int j=chooseColumn();
 				if (seats_first[i][j].equals("0")){
-					System.out.println("This seat isn't available.");
-				}//end if
-				else{System.out.println("This seat is available.");}//end else
-				System.out.println("Put 1 to check another seat or put other number to continue.");
+					logger.log(Level.WARNING, "This seat isn't available.");
+				} else{
+					logger.log(Level.INFO, "This seat is available.");
+				}
+				logger.log(Level.INFO, "Put 1 to check another seat or put other number to continue.");
 				option=read.nextInt();
 			}while(option==1);
 		}//end if
@@ -511,15 +513,15 @@ public class FlightLaMancha {
 	
 	public static void showTicketInformation(int i, int j, int ticketn, int [][]array_tickets, int clients_number, String [][]seats_second, int [][]array_suitcases,boolean [][]array_return) {
 		if(array_tickets [i][j] == ticketn){
-			System.out.println("Client's number: " + clients_number);
-			System.out.println("Ticket number " + ticketn + ": ");
-			System.out.println("Position: "+ seats_second[i][j]+". ");
+			logger.log(Level.INFO, "Client's number: " + clients_number);
+			logger.log(Level.INFO, "Ticket number " + ticketn + ": ");
+			logger.log(Level.INFO, "Position: "+ seats_second[i][j]+". ");
 			if(array_return[i][j] == true){
-				System.out.println("Return.");
+				logger.log(Level.INFO, "Return.");
 			} else {
-				System.out.println("One-way.");
+				logger.log(Level.INFO, "One-way.");
 			}
-			System.out.println("Suitcases: "+ array_suitcases[i][j]+".");
+			logger.log(Level.INFO, "Suitcases: "+ array_suitcases[i][j]+".");
 		}//end if
 	}
 		
@@ -567,18 +569,18 @@ public class FlightLaMancha {
 				}//end for
 				double new_total_price=calculate_total_price(p,tickets,one_way_tickets,return_tickets,total_suitcase);
 				if (new_total_price==total_price){
-					System.out.println("It cannot be possible. You cannot cancel the same ticket twice.");
+					logger.log(Level.WARNING, "It cannot be possible. You cannot cancel the same ticket twice.");
 				} else {
 					if(total_price>0){
-						System.out.println("The total price is: " + new_total_price);
+						logger.log(Level.INFO, "The total price is: " + new_total_price);
 					}
 				}
-				System.out.println("Put 1 to cancel another ticket or put other number to continue.");
+				logger.log(Level.INFO, "Put 1 to cancel another ticket or put other number to continue.");
 				option=read.nextInt();
 				total_price=new_total_price;
 			} while (option==1 && cancel_tickets!=tickets);
 			if(cancel_tickets == tickets){
-				System.out.println("It cannot be possible. You cannot cancel more tickets because you don't have it.");
+				logger.log(Level.WARNING, "It cannot be possible. You cannot cancel more tickets because you don't have it.");
 			}//end if
 			return cancel_tickets;
 	}//end cancel method.
@@ -636,10 +638,10 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	public static int getTicketToCancel(int tickets) {
-		System.out.println("Which ticket do you want to cancel?");
+		logger.log(Level.INFO, "Which ticket do you want to cancel?");
 		int ticketn = read.nextInt();
 		while(ticketn <= 0 || ticketn > tickets){
-			System.out.println("It cannot be possible. Please, select which ticket you want to cancel:");
+			logger.log(Level.WARNING, "It cannot be possible. Please, select which ticket you want to cancel:");
 			ticketn=read.nextInt();
 		}
 		return ticketn;
@@ -661,12 +663,13 @@ public class FlightLaMancha {
 	
 	public static void plane(String[][] seats_first){
 		int i, j;
-		System.out.println("The seats with 0 are occupied. The rest are free.");
+		logger.log(Level.INFO, "The seats with 0 are occupied. The rest are free.");
 		for(i=0;i<seats_first.length;i++){
 			for(j=0;j<seats_first[0].length;j++){
 				System.out.print(seats_first [i][j]+"  ");
+				logger.log(Level.INFO, seats_first [i][j]+"  ");
 			}//end for
-			System.out.println("");
+			logger.log(Level.INFO, "");
 		}//end for
 	}//end plane method.
 	
@@ -684,10 +687,10 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	public static int chooseRow(int F){
-		System.out.println("In which row do you want your seat?");
+		logger.log(Level.INFO, "In which row do you want your seat?");
 		int i=read.nextInt();
 		while(i>F || i<=0) {
-			System.out.println("It cannot be possible, it must be between 1 and "+F+". Please, put the row you want your seat:");
+			logger.log(Level.WARNING, "It cannot be possible, it must be between 1 and \"+F+\". Please, put the row you want your seat:");
 			i=read.nextInt();
 		}//end while
 		i--;
@@ -710,7 +713,7 @@ public class FlightLaMancha {
 	public static int chooseColumn(){
 		int j;
 		do{
-			System.out.println("In which column do you want your seat: A, B, C or D?");
+			logger.log(Level.INFO, "In which column do you want your seat: A, B, C or D?");
 			String z=read.next();
 			switch (z){
 			case "A":
@@ -729,7 +732,8 @@ public class FlightLaMancha {
 				j=4;
 			break;}//end switch
 			if(j==4){
-				System.out.println("It cannot be possible. Please, put A, B, C or D:");}//end if
+				logger.log(Level.WARNING, "It cannot be possible. Please, put A, B, C or D:");
+			}
 		}while (j==4);
 		return j;
 	}//end chooseColumns method.
@@ -749,10 +753,10 @@ public class FlightLaMancha {
 	public static int suitcases(){
 		int suitcases;
 		do {
-			System.out.println("How many suitcases will you carry? (Maximun is 2)");
+			logger.log(Level.INFO, "How many suitcases will you carry? (Maximun is 2)");
 			suitcases=read.nextInt();
 			if(suitcases < 0 || suitcases > 2){
-				System.out.println("It cannot be possible. Please, put the number of suitcases that you will carry:");
+				logger.log(Level.WARNING, "It cannot be possible. Please, put the number of suitcases that you will carry:");
 				read.nextLine();
 			}
 		} while (suitcases < 0 || suitcases > 2);
@@ -780,10 +784,10 @@ public class FlightLaMancha {
 		} else {
 			availables = availableSeats;
 		}
-		System.out.println("How many tickets do you want?");
+		logger.log(Level.INFO, "How many tickets do you want?");
 		tickets=read.nextInt();
 		while (tickets > 10 || tickets <= 0 || tickets > availables){
-			System.out.println("It cannot be possible. The number of tickets must be less than "+availables+" or the available seats.");
+			logger.log(Level.WARNING, "It cannot be possible. The number of tickets must be less than \"+availables+\" or the available seats.");
 			tickets = read.nextInt();
 		}
 		return tickets;
@@ -852,7 +856,6 @@ public class FlightLaMancha {
 			for(column=0;column<seats_first[0].length;column++){
 				writer.println(seats_first[row][column]);
 			}//end for
-			System.out.println("");
 		}//end for
 	    writer.close();
 	}//end writePlane method.
