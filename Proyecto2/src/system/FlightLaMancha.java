@@ -296,14 +296,15 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static double chooseTickets(FlightLaMancha flight, int tickets, int clients_number) {
-		int one_way_tickets = 0, return_tickets = 0, total_suitcases=0;
+	public static double chooseTickets(FlightLaMancha flight, int tickets, int clientsNumber) {
+		int oneWayTickets = 0, returnTickets = 0, totalSuitcases=0;
 		int option = 0, i = 0, j = 0, nsuitcases = 0;
-		for(int number_tickets = 1; number_tickets <= tickets; number_tickets++){
-			logger.log(Level.INFO, String.format("Ticket numbers is %d:", number_tickets));
+		for(int numberTickets = 1; numberTickets <= tickets; numberTickets++){
+			logger.log(Level.INFO, String.format("Ticket numbers is %d:", numberTickets));
 			logger.log(Level.INFO, "Put 1 if you want a one-way ticket or another number for a return ticket.");
 			option=read.nextInt();
-			increaseTickets(option, one_way_tickets, return_tickets);
+			if(option == 1) oneWayTickets++;
+			else returnTickets++;
 			plane(flight);
 			do {
 				i = chooseRow(flight);
@@ -313,37 +314,15 @@ public class FlightLaMancha {
 				}
 			} while(flight.occupiedSeats[i][j].equals("0"));
 			flight.occupiedSeats [i][j]="0";
-			flight.clients [i][j] = clients_number;
+			flight.clients [i][j] = clientsNumber;
 			flight.availableSeats--;
 			nsuitcases=suitcases();//suitcases' counter
-			total_suitcases=total_suitcases+nsuitcases;
+			totalSuitcases += nsuitcases;
 			flight.isReturnTickets[i][j] = option == 1 ? false : true;
 			flight.suitcases[i][j]=nsuitcases;
-			flight.tickets [i][j]=number_tickets;
+			flight.tickets [i][j]=numberTickets;
 		}//end for
-		return calculate_total_price(flight,one_way_tickets,return_tickets,tickets,total_suitcases);
-	}
-	
-	/*********************************************************************
-	*
-	* Method name: increaseTickets
-	*
-	* Description of the Method: increase the number of one way or return tickets.
-	*
-	* @param int option: variable for the program
-	* @param int one_way_tickets: number of one-way tickets
-	* @param int return_tickets: number of return tickets
-	*
-	* void
-	*
-	*********************************************************************/ 
-	
-	public static void increaseTickets(int option, int one_way_tickets, int return_tickets) {
-		if(option == 1) {
-			one_way_tickets++;
-		} else {
-			return_tickets++;
-		}
+		return calculateTotalPrice(flight, oneWayTickets, returnTickets, tickets, totalSuitcases);
 	}
 	
 	/*********************************************************************
@@ -588,7 +567,7 @@ public class FlightLaMancha {
 						}//end if
 					}//end for
 				}//end for
-				double new_total_price=calculate_total_price(flight, tickets,one_way_tickets,return_tickets,total_suitcase);
+				double new_total_price=calculateTotalPrice(flight, tickets,one_way_tickets,return_tickets,total_suitcase);
 				if (new_total_price==total_price){
 					logger.log(Level.WARNING, "It cannot be possible. You cannot cancel the same ticket twice.");
 				} else {
@@ -815,7 +794,7 @@ public class FlightLaMancha {
 							
 	/*********************************************************************
 	*
-	* Method name: calculate_total_price
+	* Method name: calculateTotalPrice
 	*
 	* Description of the Method: it calculates the final price.
 	*
@@ -838,16 +817,16 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static double calculate_total_price (FlightLaMancha flight,int one_way_tickets,int return_tickets,int tickets,int total_suitcase){
-		double discount=0.75,suitcase_price=15,group=6,discount_group=0.8;
-		double one_way_price=flight.ticketPrice*one_way_tickets;
-		double return_price=2*flight.ticketPrice*return_tickets*discount;
-		double t_suitcase_price=total_suitcase*suitcase_price;
-		double total_price=one_way_price+return_price+t_suitcase_price;
+	public static double calculateTotalPrice(FlightLaMancha flight,int oneWayTickets,int returnTickets,int tickets,int totalSuitcase){
+		double discount=0.75,suitcasePrice=15,group=6,discountGroup=0.8;
+		double oneWayPrice=flight.ticketPrice*oneWayTickets;
+		double returnPrice=2*flight.ticketPrice*returnTickets*discount;
+		double tSuitcasePrice=totalSuitcase*suitcasePrice;
+		double totalPrice=oneWayPrice+returnPrice+tSuitcasePrice;
 		if (tickets>=group){
-			total_price=total_price*discount_group;
+			totalPrice=totalPrice*discountGroup;
 		}//end if
-		return total_price;
+		return totalPrice;
 	}//end calculate_total_price method.
 	
 	/*********************************************************************
