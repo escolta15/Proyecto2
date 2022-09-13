@@ -261,7 +261,7 @@ public class FlightLaMancha {
 			chooseTickets(flight, tickets, one_way_tickets, return_tickets, array_clients, clients_number, total_suitcases, array_tickets, array_suitcases, array_return);
 			double total_price=calculate_total_price(flight,one_way_tickets,return_tickets,tickets,total_suitcases);//Calculation of the price
 			information(flight, clients_number, tickets,array_clients, array_tickets, array_suitcases, array_return,clients_number);//Print information
-			logger.log(Level.INFO, String.format("The total price is: {0}", total_price));
+			logger.log(Level.INFO, "The total price is: {0}", total_price);
 			logger.log(Level.INFO, "------------------------------------------------");
 		} else {
 			logger.log(Level.WARNING, "The plane is full.");
