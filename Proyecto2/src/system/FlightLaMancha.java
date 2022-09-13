@@ -99,13 +99,13 @@ public class FlightLaMancha {
 		double ticketPrice = readPrice();
 		FlightLaMancha flight = new FlightLaMancha(rows, columns, ticketPrice);
 		buildPlane(flight);
-		principal_switch(flight);
+		principalSwitch(flight);
 	}//end program method.
 
 	
 	/*********************************************************************
 	*
-	* Method name: principal_menu
+	* Method name: principalMenu
 	*
 	* Description of the Method: it shows the menu
 	*
@@ -113,13 +113,13 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void principal_menu() {
+	public static void principalMenu() {
 		logger.log(Level.INFO, "Please, introduce an option:");
 		logger.log(Level.INFO, "1) Buy tickets.");
 		logger.log(Level.INFO, "2) Cancel reserved tickets.");
 		logger.log(Level.INFO, "3) Show available seats.");
 		logger.log(Level.INFO, "0 or other number to finish.");
-	}//end principal_menu method.
+	}
 	
 	/*********************************************************************
 	*
@@ -138,10 +138,9 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	public static void buildPlane(FlightLaMancha flight) {
-		int row = 0, column = 0;
 		char columnLetter;
-		for(row = 0; row < flight.occupiedSeats.length; row++) {
-			for(column = 0; column < flight.occupiedSeats[0].length; column++) {
+		for(int row = 0; row < flight.occupiedSeats.length; row++) {
+			for(int column = 0; column < flight.occupiedSeats[0].length; column++) {
 				switch (column){
 					case 0:
 						columnLetter = 'A';
@@ -169,7 +168,7 @@ public class FlightLaMancha {
 	
 	/*********************************************************************
 	*
-	* Method name: principal_switch
+	* Method name: principalSwitch
 	*
 	* Description of the Method: it manages and controls the program.
 	*
@@ -191,17 +190,18 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void principal_switch(FlightLaMancha flight) throws IOException {
+	public static void principalSwitch(FlightLaMancha flight) throws IOException {
 		boolean [][] isReturnTickets = new boolean [flight.rows][flight.columns];
 		int [][] tickets = new int [flight.rows][flight.columns];
 		int [][] clients = new int [flight.rows][flight.columns];
 		int [][] suitcases = new int [flight.rows][flight.columns];
-		int option = 0, totalClients = 0;
+		int option = 0;
+		int totalClients = 0;
 		boolean error = false;
 		do{
 			try {
 				error = false;
-				principal_menu();
+				principalMenu();
 				option = read.nextInt();
 				switch (option){
 					case 1:
@@ -222,8 +222,8 @@ public class FlightLaMancha {
 				logger.log(Level.WARNING, "Please, introduce a correct option");
 				read.nextLine();
 			}
-		} while((option > 0 && option <=3) || error == true);
-	}//end principal_switch method.
+		} while((option > 0 && option <=3) || error);
+	}//end principalSwitch method.
 	
 	/*********************************************************************
 	*
