@@ -256,12 +256,12 @@ public class FlightLaMancha {
 	
 	public static void buyTickets(FlightLaMancha flight){
 		flight.totalClients++;
-		int clients_number = flight.totalClients;
+		int clientsNumber = flight.totalClients;
 		if(flight.availableSeats != 0){
 			int tickets=selectTickets(flight);//total tickets
-			double total_price = chooseTickets(flight, tickets, clients_number);
-			information(flight, clients_number, tickets,clients_number);//Print information
-			logger.log(Level.INFO, "The total price is: {0}", total_price);
+			double totalPrice = chooseTickets(flight, tickets, clientsNumber);
+			information(flight, clientsNumber, tickets, clientsNumber);//Print information
+			logger.log(Level.INFO, "The total price is: {0}", totalPrice);
 			logger.log(Level.INFO, "------------------------------------------------");
 		} else {
 			logger.log(Level.WARNING, "The plane is full.");
@@ -297,8 +297,13 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	public static double chooseTickets(FlightLaMancha flight, int tickets, int clientsNumber) {
-		int oneWayTickets = 0, returnTickets = 0, totalSuitcases=0;
-		int option = 0, i = 0, j = 0, nsuitcases = 0;
+		int oneWayTickets = 0;
+		int returnTickets = 0;
+		int totalSuitcases = 0;
+		int option = 0;
+		int i = 0;
+		int j = 0;
+		int nsuitcases = 0;
 		for(int numberTickets = 1; numberTickets <= tickets; numberTickets++){
 			logger.log(Level.INFO, "Ticket numbers is {0}", numberTickets);
 			logger.log(Level.INFO, "Put 1 if you want a one-way ticket or another number for a return ticket.");
@@ -318,7 +323,8 @@ public class FlightLaMancha {
 			flight.availableSeats--;
 			nsuitcases=suitcases();//suitcases' counter
 			totalSuitcases += nsuitcases;
-			flight.isReturnTickets[i][j] = option == 1 ? false : true;
+			if (option == 1) flight.isReturnTickets[i][j] = false;
+			else flight.isReturnTickets[i][j] = true;
 			flight.suitcases[i][j]=nsuitcases;
 			flight.tickets [i][j]=numberTickets;
 		}//end for
@@ -355,14 +361,14 @@ public class FlightLaMancha {
 	public static void cancelTickets(FlightLaMancha flight){
 		if(flight.totalClients > 0){
 			int ctickets=0;
-			double total_price=0;
-			int clients_number = getClientsNumber(flight);
-			int tickets = countClientTickets(flight, clients_number);
+			double totalPrice=0;
+			int clientsNumber = getClientsNumber(flight);
+			int tickets = countClientTickets(flight, clientsNumber);
 			logger.log(Level.INFO, "These are your tickets");
-			information(flight, clients_number,tickets,clients_number);
+			information(flight, clientsNumber,tickets,clientsNumber);
 			if(tickets>0){
 				tickets=tickets+ctickets;
-				ctickets=cancel(flight, tickets,total_price, clients_number);
+				ctickets=cancel(flight, tickets,totalPrice, clientsNumber);
 				flight.availableSeats += ctickets;
 			} else {
 				logger.log(Level.WARNING, "This client has not tickets.");
@@ -387,12 +393,12 @@ public class FlightLaMancha {
 	
 	public static int getClientsNumber(FlightLaMancha flight) {
 		logger.log(Level.INFO, "What number has the client?");
-		int clients_number = read.nextInt();
-		while(clients_number < 0 || clients_number > flight.totalClients){
+		int clientsNumber = read.nextInt();
+		while(clientsNumber < 0 || clientsNumber > flight.totalClients){
 			logger.log(Level.WARNING, "This client does not exist. Please, put the correct number:");
-			clients_number=read.nextInt();
+			clientsNumber=read.nextInt();
 		}
-		return clients_number;
+		return clientsNumber;
 	}
 	
 	/*********************************************************************
@@ -411,11 +417,11 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static int countClientTickets(FlightLaMancha flight, int clients_number) {
+	public static int countClientTickets(FlightLaMancha flight, int clientsNumber) {
 		int tickets = 0;
 		for(int i = 0; i < flight.clients.length; i++){
 			for(int j = 0; j < flight.clients.length; j++){
-				if(flight.clients[i][j] == clients_number){
+				if(flight.clients[i][j] == clientsNumber){
 					tickets++;
 				}
 			}
