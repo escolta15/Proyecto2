@@ -36,6 +36,7 @@ public class FlightLaMancha {
 	private int [][] tickets;
 	private int [][] clients;
 	private int [][] suitcases;
+	private int totalClients;
 	
 	/*********************************************************************
 	*
@@ -61,6 +62,7 @@ public class FlightLaMancha {
 		this.tickets = new int [rows][columns];
 		this.clients = new int [rows][columns];
 		this.suitcases = new int [rows][columns];
+		this.totalClients = 0;
 	}
 	
 	/*********************************************************************
@@ -198,7 +200,6 @@ public class FlightLaMancha {
 	
 	public static void principalSwitch(FlightLaMancha flight) throws IOException {
 		int option = 0;
-		int totalClients = 0;
 		boolean error = false;
 		do{
 			try {
@@ -207,10 +208,10 @@ public class FlightLaMancha {
 				option = read.nextInt();
 				switch (option){
 					case 1:
-						totalClients = buyTickets(flight, totalClients);
+						buyTickets(flight);
 					break;
 					case 2:
-						cancelTickets(flight, totalClients);
+						cancelTickets(flight);
 					break;
 					case 3:
 						showPlane(flight);
@@ -253,21 +254,18 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static int buyTickets(FlightLaMancha flight, int total_clients){
-		int one_way_tickets = 0, return_tickets = 0, total_suitcases=0;
-		total_clients++;
-		int clients_number=total_clients;
+	public static void buyTickets(FlightLaMancha flight){
+		flight.totalClients++;
+		int clients_number = flight.totalClients;
 		if(flight.availableSeats != 0){
 			int tickets=selectTickets(flight);//total tickets
-			chooseTickets(flight, tickets, one_way_tickets, return_tickets, clients_number, total_suitcases);
-			double total_price=calculate_total_price(flight,one_way_tickets,return_tickets,tickets,total_suitcases);//Calculation of the price
+			double total_price = chooseTickets(flight, tickets, clients_number);
 			information(flight, clients_number, tickets,clients_number);//Print information
 			logger.log(Level.INFO, "The total price is: {0}", total_price);
 			logger.log(Level.INFO, "------------------------------------------------");
 		} else {
 			logger.log(Level.WARNING, "The plane is full.");
 		}
-		return total_clients;
 	}//end buyTickets method.
 	
 	/*********************************************************************
@@ -298,7 +296,8 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void chooseTickets(FlightLaMancha flight, int tickets, int one_way_tickets, int return_tickets, int clients_number, int total_suitcases) {
+	public static double chooseTickets(FlightLaMancha flight, int tickets, int clients_number) {
+		int one_way_tickets = 0, return_tickets = 0, total_suitcases=0;
 		int option = 0, i = 0, j = 0, nsuitcases = 0;
 		for(int number_tickets = 1; number_tickets <= tickets; number_tickets++){
 			logger.log(Level.INFO, String.format("Ticket numbers is %d:", number_tickets));
@@ -322,6 +321,7 @@ public class FlightLaMancha {
 			flight.suitcases[i][j]=nsuitcases;
 			flight.tickets [i][j]=number_tickets;
 		}//end for
+		return calculate_total_price(flight,one_way_tickets,return_tickets,tickets,total_suitcases);
 	}
 	
 	/*********************************************************************
@@ -373,11 +373,11 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void cancelTickets(FlightLaMancha flight, int total_clients){
-		if(total_clients > 0){
+	public static void cancelTickets(FlightLaMancha flight){
+		if(flight.totalClients > 0){
 			int one_way_tickets = 0, return_tickets = 0, total_suitcases=0, ctickets=0;
 			double total_price=0;
-			int clients_number = getClientsNumber(total_clients);
+			int clients_number = getClientsNumber(flight);
 			int tickets = countClientTickets(flight, clients_number);
 			logger.log(Level.INFO, "These are your tickets");
 			information(flight, clients_number,tickets,clients_number);
@@ -406,10 +406,10 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static int getClientsNumber(int total_clients) {
+	public static int getClientsNumber(FlightLaMancha flight) {
 		logger.log(Level.INFO, "What number has the client?");
 		int clients_number = read.nextInt();
-		while(clients_number < 0 || clients_number > total_clients){
+		while(clients_number < 0 || clients_number > flight.totalClients){
 			logger.log(Level.WARNING, "This client does not exist. Please, put the correct number:");
 			clients_number=read.nextInt();
 		}
