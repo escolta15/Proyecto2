@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 * Class Name: FlightLaMancha
 * @author Author/s name: Pablo Mora Herreros
 * Release/Creation date: 28/08/2022
-* Class version: 1.0.0
+* Class version: 1.0.1
 * Class description: it simulates a program which buys or cancels tickets for flights.
 *
 **********************************************************************
@@ -44,11 +44,11 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: It is the constructor
 	* 
-	* @param int availableSeats: it accumulates the number of available seats.
+	* @param int row: rows of the plane
+	* @param int column: columns of the plane
+	* @param double ticketPrice: price of one ticket
 	*
 	* void
-	*
-	* @throws IOException
 	*
 	*********************************************************************/ 
 	
@@ -79,19 +79,13 @@ public class FlightLaMancha {
 	
 	public static void main(String[] args) throws IOException {
 		program();
-	}//end main method.
+	}
 	
 	/*********************************************************************
 	*
 	* Method name: program
 	*
 	* Description of the Method: It does all the functions of the main method.
-	*
-	* @param int columns: number of columns.
-	* @param double ticketPrice: price of the ticket one-way
-	* @param double rows: number of rows
-	* @param String [] [] currentSeats: it saves the current seats.
-	* @param String [] [] occupiedSeats: it saves the plane with the occupied seats.
 	*
 	* void
 	*
@@ -108,9 +102,8 @@ public class FlightLaMancha {
 		FlightLaMancha flight = new FlightLaMancha(rows, columns, ticketPrice);
 		buildPlane(flight);
 		principalSwitch(flight);
-	}//end program method.
+	}
 
-	
 	/*********************************************************************
 	*
 	* Method name: principalMenu
@@ -135,11 +128,7 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: it forms the plane with its seats
 	*
-	* @param String [][] currentSeats: it saves the current seats.
-	* @param String [][] occupiedSeats: it saves the plane with the occupied seats.
-	* @param int row: rows of the plane
-	* @param int column: columns of the plane
-	* @param char columnLetter: is to put the columns with letters.
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	* 
 	* void
 	*
@@ -172,7 +161,7 @@ public class FlightLaMancha {
 				flight.currentSeats[row][column] = x + y;
 			}
 		}
-	}//end seatsArrays method.
+	}
 	
 	/*********************************************************************
 	*
@@ -180,17 +169,7 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: it manages and controls the program.
 	*
-	* @param int rows: the number of rows which has the plane.
-	* @param int columns: the number of columns which has the plane.
-	* @param double price1Way: price of the ticket one-way
-	* @param String [][] occupiedSeats: it saves the plane with the occupied seats.
-	* @param String [][] currentSeats: it saves the current seats.
-	* @param boolean [][] isReturnTickets: it controls if the seat is for return ticket.
-	* @param int [][] tickets: array with the tickets
-	* @param int [][] clients: array for the clients
-	* @param int [][] suitcases: array with the suitcases.
-	* @param int option: variable for the program
-	* @param int totalClients: it counts all the clients
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	* 
 	* void
 	*
@@ -225,8 +204,8 @@ public class FlightLaMancha {
 				logger.log(Level.WARNING, "Please, introduce a correct option");
 				read.nextLine();
 			}
-		} while((option > 0 && option <=3) || error);
-	}//end principalSwitch method.
+		} while((option > 0 && option <= 3) || error);
+	}
 	
 	/*********************************************************************
 	*
@@ -234,23 +213,9 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: with this method the client can buy the tickets.
 	*
-	* @param int total_clients: it counts all the clients
-	* @param int a: it accumulates the number of available seats.
-	* @param int one_way_tickets: number of one-way tickets
-	* @param int return_tickets: number of return tickets
-	* @param String [][] seats_first: it saves the plane with the occupied seats.
-	* @param int F: the number of rows which has the plane.
-	* @param int [][] array_tickets: array with the tickets
-	* @param int [][] array_suitcases: array with the suitcases.
-	* @param int total_suitcases: the counter of suitcases
-	* @param boolean [][] array_return: it controls if the seat is for return ticket.
-	* @param double price1way: price of the ticket one-way
-	* @param String [] [] seats_second: it saves the current seats.
-	* @param int clients_number: number of the clients
-	* @param int tickets: the counter of the tickets
-	* @param double total_price: it is the total and final price.
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	*
-	* @return Return value: total_clients.
+	* void
 	*
 	*********************************************************************/ 
 	
@@ -258,15 +223,15 @@ public class FlightLaMancha {
 		flight.totalClients++;
 		int clientsNumber = flight.totalClients;
 		if(flight.availableSeats != 0){
-			int tickets=selectTickets(flight);//total tickets
+			int tickets = selectTickets(flight);
 			double totalPrice = chooseTickets(flight, tickets, clientsNumber);
-			information(flight, clientsNumber, tickets, clientsNumber);//Print information
+			information(flight, clientsNumber, tickets, clientsNumber);
 			logger.log(Level.INFO, "The total price is: {0}", totalPrice);
 			logger.log(Level.INFO, "------------------------------------------------");
 		} else {
 			logger.log(Level.WARNING, "The plane is full.");
 		}
-	}//end buyTickets method.
+	}
 	
 	/*********************************************************************
 	*
@@ -274,25 +239,11 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: with this method the client can choose the tickets.
 	*
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	* @param int tickets: the counter of the tickets
-	* @param int one_way_tickets: number of one-way tickets
-	* @param int return_tickets: number of return tickets
-	* @param String [][] seats_first: it saves the plane with the occupied seats.
-	* @param int F: the number of rows which has the plane.
-	* @param int clients_number: number of the clients
-	* @param int a: it accumulates the number of available seats.
-	* @param int total_suitcases: the counter of suitcases
-	* @param int [][] array_tickets: array with the tickets
-	* @param int [][] array_suitcases: array with the suitcases.
-	* @param boolean [][] array_return: it controls if the seat is for return ticket.
-	* 
-	* @param int option: variable for the program
-	* @param int i: rows of the plane
-	* @param int j: columns of the plane
-	* @param int nsuitcases: the number of suitcases that the client carries.
-	* @param int number_tickets: number of the tickets
+	* @param int clientsNumber: number of the clients
 	*
-	* void
+	* @return Return value: totalPrice
 	*
 	*********************************************************************/ 
 	
@@ -321,13 +272,13 @@ public class FlightLaMancha {
 			flight.occupiedSeats [i][j]="0";
 			flight.clients [i][j] = clientsNumber;
 			flight.availableSeats--;
-			nsuitcases=suitcases();//suitcases' counter
+			nsuitcases=getSuitcases();
 			totalSuitcases += nsuitcases;
 			if (option == 1) flight.isReturnTickets[i][j] = false;
 			else flight.isReturnTickets[i][j] = true;
 			flight.suitcases[i][j]=nsuitcases;
 			flight.tickets [i][j]=numberTickets;
-		}//end for
+		}
 		return calculateTotalPrice(flight, oneWayTickets, returnTickets, tickets, totalSuitcases);
 	}
 	
@@ -337,22 +288,7 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: it permits to cancel the tickets.
 	*
-	* @param int total_clients: it counts all the clients
-	* @param int clients_number: number of the clients 
-	* @param int [][] array_clients: array for the clients
-	* @param int ctickets: number of tickets which have been cancelled
-	* @param int [][] array_tickets: array with the tickets
-	* @param int [][] array_suitcases: array with the suitcases.
-	* @param double price1way: price of the ticket one-way
-	* @param int a: it accumulates the number of available seats.
-	* @param String [][] seats_first: it saves the plane with the occupied seats.
-	* @param String [] [] seats_second: it saves the current seats.
-	* @param boolean [][] array_return: it controls if the seat is for return ticket.
-	* @param int return_tickets: number of return tickets
-	* @param int total_suitcases: the counter of suitcases
-	* @param int one_way_tickets: number of one-way tickets
-	* @param int tickets: the counter of the tickets
-	* @param double total_price: it is the total and final price.
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	*
 	* void
 	*
@@ -380,10 +316,9 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: it obtains the number of the client.
 	*
-	* @param int total_clients: it counts all the clients
-	* @param int clients_number: number of the clients 
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	*
-	* @return Return value: clients_number
+	* @return Return value: clientsNumber
 	*
 	*********************************************************************/ 
 	
@@ -403,11 +338,8 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: it obtains the number client's tickets.
 	*
-	* @param int [][] array_clients: array for the clients
-	* @param int clients_number: number of the clients 
-	* @param int tickets: the counter of the tickets
-	* @param int i: rows of the plane
-	* @param int j: columns of the plane
+	* @param FlightLaMancha flight: it has all the properties of a flight
+	* @param int clientsNumber: number of the clients
 	*
 	* @return Return value: tickets
 	*
@@ -431,10 +363,7 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: it shows the plane when the client wants to see it.
 	*
-	* @param String [][] seats_first: it saves the plane with the occupied seats.
-	* @param int a: it accumulates the number of available seats.
-	* @param int F: the number of rows which has the plane.
-	* @param int option: variable for the program
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	*
 	* void
 	*
@@ -457,8 +386,8 @@ public class FlightLaMancha {
 				logger.log(Level.INFO, "Put 1 to check another seat or put other number to continue.");
 				option=read.nextInt();
 			}while(option==1);
-		}//end if
-	}//end showPlane method.
+		}
+	}
 	
 	/*********************************************************************
 	*
@@ -466,32 +395,25 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: It calculates and prints all the information of the order.
 	*
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	* @param int tickets: the counter of the tickets
 	* @param int client: number of each client
-	* @param int [][]array_clients: array for the clients
-	* @param String [][]seats_second: it saves the current seats.
-	* @param int [][]array_tickets: array with the tickets
-	* @param int [][]array_suitcases: array with the suitcases.
-	* @param boolean [][]array_return: it controls if the seat is for return ticket.
-	* @param int clients_number: number of the clients
-	* @param int i: rows of the plane
-	* @param int j: columns of the plane
-	* @param int ticketn: id of the ticket
+	* @param int clientsNumber: number of the clients
 	*
 	* void
 	*
 	*********************************************************************/ 
 	
 	public static void information(FlightLaMancha flight, int tickets,int client, int clientsNumber){
-			for(int ticketn=1;ticketn <= tickets; ticketn++){
-				for(int i=0;i<flight.currentSeats.length;i++){
-					for(int j=0;j<flight.currentSeats[0].length;j++){
-						if(flight.clients[i][j]==client){
-							showTicketInformation(flight, i, j, ticketn, clientsNumber);
-						}
+		for(int ticketn=1;ticketn <= tickets; ticketn++){
+			for(int i=0;i<flight.currentSeats.length;i++){
+				for(int j=0;j<flight.currentSeats[0].length;j++){
+					if(flight.clients[i][j]==client){
+						showTicketInformation(flight, i, j, ticketn, clientsNumber);
 					}
 				}
 			}
+		}
 	}
 	
 	/*********************************************************************
@@ -500,14 +422,11 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: It shows the information of a ticket.
 	* 
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	* @param int i: rows of the plane
 	* @param int j: columns of the plane
 	* @param int ticketn: id of the ticket
-	* @param int [][]array_tickets: array with the tickets
-	* @param int clients_number: number of the clients
-	* @param String [][]seats_second: it saves the current seats.
-	* @param int [][]array_suitcases: array with the suitcases.
-	* @param boolean [][]array_return: it controls if the seat is for return ticket.
+	* @param int clientsNumber: number of the clients
 	*
 	* void
 	*
@@ -524,7 +443,7 @@ public class FlightLaMancha {
 				logger.log(Level.INFO, "One-way.");
 			}
 			logger.log(Level.INFO, "Suitcases: {0}.", flight.suitcases[i][j]);
-		}//end if
+		}
 	}
 		
 	/*********************************************************************
@@ -533,28 +452,11 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: it cancels the tickets that client wants
 	*
-	* @param int a: it accumulates the number of available seats.
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	* @param int tickets: the counter of the tickets
-	* @param double p: price of the ticket one-way
-	* @param double total_price: it is the total and final price.
-	* @param int [][] user_array: array for the clients (== array_clients)
-	* @param String [][] seats_first: it saves the plane with the occupied seats.
-	* @param String [][] seats_second: it saves the current seats.
-	* @param int [][] array_tickets: array with the tickets
-	* @param int return_tickets: number of return tickets
-	* @param int one_way_tickets: number of one-way tickets
-	* @param int total_suitcase: the counter of suitcases
-	* @param int [][] array_suitcases: array with the suitcases.
-	* @param boolean [][]array_return: it controls if the seat is for return ticket.
 	* @param int client: number of each client
-	* @param int cancel_tickets: number of tickets which have been cancelled
-	* @param int i: rows of the plane
-	* @param int j: columns of the plane
-	* @param int option: variable for the program
-	* @param int ticketn: id of the ticket
-	* @param int new_total_price: it update the price
 	*
-	* @return Return value: cancel_tickets
+	* void
 	*
 	*********************************************************************/ 
 	
@@ -574,9 +476,26 @@ public class FlightLaMancha {
 			} while (option==1 && cancelTickets!=tickets);
 			if(cancelTickets == tickets){
 				logger.log(Level.WARNING, "It cannot be possible. You cannot cancel more tickets because you do not have it.");
-			}//end if
+			}
 			flight.availableSeats += cancelTickets;
-	}//end cancel method.
+	}
+	
+	/*********************************************************************
+	*
+	* Method name: recalculatePrice
+	*
+	* Description of the Method: it recalculates the total price
+	*
+	* @param FlightLaMancha flight: it has all the properties of a flight
+	* @param int tickets: the counter of the tickets
+	* @param double totalPrice: it is the total and final price.
+	* @param int oneWayTickets: number of one-way tickets.
+	* @param int returnTickets: number of return tickets
+	* @param int totalSuitcase: the counter of suitcases
+	*
+	* @return Return value: newTotalPrice
+	*
+	*********************************************************************/ 
 	
 	private static double recalculatePrice(FlightLaMancha flight, int tickets, double totalPrice, int oneWayTickets, int returnTickets, int totalSuitcase) {
 		double newTotalPrice = calculateTotalPrice(flight, tickets, oneWayTickets, returnTickets, totalSuitcase);
@@ -596,21 +515,13 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: it removes the ticket that client wants
 	*
-	* @param int i: rows of the plane
-	* @param int j: columns of the plane
-	* @param int [][] array_tickets: array with the tickets
+	* @param FlightLaMancha flight: it has all the properties of a flight
+	* @param int tickets: the counter of the tickets
+	* @param int client: number of each client
+	* @param double totalPrice: it is the total and final price.
 	* @param int ticketn: id of the ticket
-	* @param boolean [][]array_return: it controls if the seat is for return ticket.
-	* @param int return_tickets: number of return tickets
-	* @param int one_way_tickets: number of one-way tickets
-	* @param int total_suitcase: the counter of suitcases
-	* @param int [][] array_suitcases: array with the suitcases.
-	* @param String [][] seats_first: it saves the plane with the occupied seats.
-	* @param String [][] seats_second: it saves the current seats.
-	* @param int [][] user_array: array for the clients (== array_clients)
-	* @param int cancel_tickets: number of tickets which have been cancelled
 	*
-	* void
+	* @return Return value: newTotalPrice
 	*
 	*********************************************************************/ 
 	
@@ -627,20 +538,19 @@ public class FlightLaMancha {
 					flight.occupiedSeats[i][j]=flight.currentSeats[i][j];
 					flight.tickets[i][j]=0;
 					flight.clients[i][j]=0;
-				}//end if
-			}//end for
-		}//end for
+				}
+			}
+		}
 		return recalculatePrice(flight, tickets, totalPrice, oneWayTickets, returnTickets, totalSuitcase);
 	}
 	
 	/*********************************************************************
 	*
-	* Method name: cancel
+	* Method name: getTicketToCancel
 	*
-	* Description of the Method: it cancels the tickets that client wants
+	* Description of the Method: it selects ticket to cancel
 	*
 	* @param int tickets: the counter of the tickets
-	* @param int ticketn: id of the ticket
 	*
 	* @return Return value: ticketn
 	*
@@ -662,9 +572,7 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: it shows the current state of the plane.
 	*
-	* @param int i: rows of the plane
-	* @param int j: columns of the plane
-	* @param String [][] seats_first: it saves the plane with the occupied seats.
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	*
 	* void
 	*
@@ -675,10 +583,10 @@ public class FlightLaMancha {
 		for(int i=0;i<flight.occupiedSeats.length;i++){
 			for(int j=0;j<flight.occupiedSeats[0].length;j++){
 				logger.log(Level.INFO, "{0} ", flight.occupiedSeats [i][j]);
-			}//end for
+			}
 			logger.log(Level.INFO, "");
-		}//end for
-	}//end plane method.
+		}
+	}
 	
 	/*********************************************************************
 	*
@@ -686,8 +594,7 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: the client chooses the row for his seat.
 	*
-	* @param int i: the row
-	* @param int F: the number of rows which has the plane.
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	*
 	* @return Return value: i
 	*
@@ -699,19 +606,16 @@ public class FlightLaMancha {
 		while(i>flight.rows || i<=0) {
 			logger.log(Level.WARNING, "It cannot be possible, it must be between 1 and \"+F+\". Please, put the row you want your seat:");
 			i=read.nextInt();
-		}//end while
+		}
 		i--;
 		return i;
-	}//end chooseRow method.
+	}
 	
 	/*********************************************************************
 	*
 	* Method name: chooseColumn
 	*
 	* Description of the Method: the client chooses the column for his seat.
-	*
-	* @param int j: the column
-	* @param int z: variable for the switch to choose the column.
 	*
 	* @return Return value: j
 	*
@@ -723,41 +627,40 @@ public class FlightLaMancha {
 			logger.log(Level.INFO, "In which column do you want your seat: A, B, C or D?");
 			String z=read.next();
 			switch (z){
-			case "A":
-				j=0;
-			break;
-			case "B":
-				j=1;
-			break;
-			case "C":
-				j=2;
-			break;
-			case "D":
-				j=3;
-			break;
-			default:
-				j=4;
-			break;}//end switch
+				case "A":
+					j=0;
+				break;
+				case "B":
+					j=1;
+				break;
+				case "C":
+					j=2;
+				break;
+				case "D":
+					j=3;
+				break;
+				default:
+					j=4;
+				break;
+			}
 			if(j==4){
 				logger.log(Level.WARNING, "It cannot be possible. Please, put A, B, C or D:");
 			}
 		}while (j==4);
 		return j;
-	}//end chooseColumns method.
+	}
 	
 	/*********************************************************************
 	*
-	* Method name: suitcases
+	* Method name: getSuitcases
 	*
 	* Description of the Method: To know the number of suitcases that the client carries
-	*
-	* @param int suitcases: the number of suitcases that the client carries.
 	*
 	* @return Return value: suitcases
 	*
 	*********************************************************************/ 
 	
-	public static int suitcases(){
+	public static int getSuitcases(){
 		int suitcases;
 		do {
 			logger.log(Level.INFO, "How many suitcases will you carry? (Maximun is 2)");
@@ -768,7 +671,7 @@ public class FlightLaMancha {
 			}
 		} while (suitcases < 0 || suitcases > 2);
 		return suitcases;
-	}//end suitcases method.
+	}
 	
 	/*********************************************************************
 	*
@@ -776,9 +679,7 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: To know the number of tickets that the client wants
 	*
-	* @param int availables: it is the maximun number of tickets that the client can buy, in this case 10.
-	* @param int availableSeats: it accumulates the number of available seats.
-	* @param int tickets: the number of tickets that the client wants to buy.
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	*
 	* @return Return value: tickets
 	*
@@ -799,7 +700,7 @@ public class FlightLaMancha {
 			tickets = read.nextInt();
 		}
 		return tickets;
-	}//end selectTickets method.
+	}
 							
 	/*********************************************************************
 	*
@@ -807,21 +708,13 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: it calculates the final price.
 	*
-	* @param double p: price of the ticket one-way
-	* @param int one_way_tickets: number of one-way tickets
-	* @param int return_tickets: number of return tickets
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	* @param int tickets: the counter of the tickets
-	* @param int total_suitcase: the counter of suitcases
-	* @param double discount: this is the discount for the return tickets
-	* @param double suitcase_price: the price of one suitcase
-	* @param double group: the number to be a group
-	* @param double discount_group: the discount for the groups
-	* @param double one_way_price: it accumulates the price for the one-way tickets
-	* @param double return_price: it accumulates the price for the return tickets
-	* @param double t_suitcase_price: it accumulates the price for the suitcases
-	* @param double total_price: it is the total and final price.
+	* @param int oneWayTickets: number of one-way tickets
+	* @param int returnTickets: number of return tickets
+	* @param int totalSuitcase: the counter of suitcases
 	*
-	* @return Return value: total_price
+	* @return Return value: totalPrice
 	*
 	*
 	*********************************************************************/ 
@@ -837,9 +730,9 @@ public class FlightLaMancha {
 		double totalPrice=oneWayPrice+returnPrice+tSuitcasePrice;
 		if (tickets>=group){
 			totalPrice=totalPrice*discountGroup;
-		}//end if
+		}
 		return totalPrice;
-	}//end calculate_total_price method.
+	}
 	
 	/*********************************************************************
 	*
@@ -847,10 +740,7 @@ public class FlightLaMancha {
 	*
 	* Description of the Method: this method writes the current plane in the file "aircraft.txt"
 	*
-	* @param int row: index of rows of the plane
-	* @param int column: index of columns of the plane
-	* @param PrintWriter writer: aircraft.txt
-	* @param seats_first: it saves the plane with the occupied seats.
+	* @param FlightLaMancha flight: it has all the properties of a flight
 	*
 	* void
 	*
@@ -865,20 +755,16 @@ public class FlightLaMancha {
 		for(int row=0;row<flight.occupiedSeats.length;row++){
 			for(int column=0;column<flight.occupiedSeats[0].length;column++){
 				writer.println(flight.occupiedSeats[row][column]);
-			}//end for
-		}//end for
+			}
+		}
 	    writer.close();
-	}//end writePlane method.
+	}
 	
 	/*********************************************************************
 	*
 	* Method name: readRows
 	*
 	* Description of the Method: this method read the file "data.txt" and it returns the rows.
-	*
-	* @param File f: data.txt
-	* @param int rows: number of rows
-	* @param Scanner read: f
 	*
 	* @return Return value: rows
 	*
@@ -900,17 +786,13 @@ public class FlightLaMancha {
 		}
 		read.close();
 		return rows;
-	}//end readRows method.
+	}
 	
 	/*********************************************************************
 	*
 	* Method name: readColumns
 	*
 	* Description of the Method: this method read the file "data.txt" and it returns the columns.
-	*
-	* @param File f: data.txt
-	* @param int columns: number of columns
-	* @param Scanner read: f
 	*
 	* @return Return value: columns
 	*
@@ -932,17 +814,13 @@ public class FlightLaMancha {
 		}
 		read.close();
 		return columns;
-	}//end readColumns method.
+	}
 	
 	/*********************************************************************
 	*
 	* Method name: readPrice
 	*
 	* Description of the Method: this method read the file "data.txt" and it returns the price.
-	*
-	* @param File f: data.txt
-	* @param double price: price of the ticket one-way
-	* @param Scanner read: f
 	*
 	* @return Return value: price
 	*
@@ -964,6 +842,6 @@ public class FlightLaMancha {
 		}
 		read.close();
 		return price;
-	}//end readPrice method.
+	}
 	
-}//end FlightLaMancha class.
+}
