@@ -360,23 +360,19 @@ public class FlightLaMancha {
 	
 	public static void cancelTickets(FlightLaMancha flight){
 		if(flight.totalClients > 0){
-			int ctickets=0;
-			double totalPrice=0;
 			int clientsNumber = getClientsNumber(flight);
 			int tickets = countClientTickets(flight, clientsNumber);
 			logger.log(Level.INFO, "These are your tickets");
 			information(flight, clientsNumber,tickets,clientsNumber);
 			if(tickets>0){
-				tickets=tickets+ctickets;
-				ctickets=cancel(flight, tickets,totalPrice, clientsNumber);
-				flight.availableSeats += ctickets;
+				cancel(flight, tickets, clientsNumber);
 			} else {
 				logger.log(Level.WARNING, "This client has not tickets.");
 			}
 		} else {
 			logger.log(Level.WARNING, "There are not clients, so you cannot cancel.");	
 		}
-	}//end cancelTickets method.
+	}
 	
 	/*********************************************************************
 	*
@@ -492,11 +488,11 @@ public class FlightLaMancha {
 					for(int j=0;j<flight.currentSeats[0].length;j++){
 						if(flight.clients[i][j]==client){
 							showTicketInformation(flight, i, j, ticketn, clientsNumber);
-						}//end if
-					}//end for
-				}//end for
-			}//end for
-	}//end information method
+						}
+					}
+				}
+			}
+	}
 	
 	/*********************************************************************
 	*
@@ -562,38 +558,37 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static int cancel(FlightLaMancha flight, int tickets,double totalPrice,int client){
-			int oneWayTickets = 0;
-			int returnTickets = 0;
-			int totalSuitcase=0;
-			int cancel_tickets = 0;
+	public static void cancel(FlightLaMancha flight, int tickets, int client){
+			int cancelTickets = 0;
+			double totalPrice = 0;
 			int option = 0;
 			do{
 				int ticketn = getTicketToCancel(tickets);
-				for (int i = 0; i < flight.occupiedSeats.length; i++){
-					for (int j = 0; j < flight.occupiedSeats[0].length; j++){
-						if(flight.clients[i][j] == client){
-							removeTicket(flight, i, j, ticketn, returnTickets, oneWayTickets, totalSuitcase, cancel_tickets);
-						}//end if
-					}//end for
-				}//end for
-				double newtTotalPrice=calculateTotalPrice(flight, tickets,oneWayTickets,returnTickets,totalSuitcase);
-				if (newtTotalPrice==totalPrice){
-					logger.log(Level.WARNING, "It cannot be possible. You cannot cancel the same ticket twice.");
-				} else {
-					if(totalPrice>0){
-						logger.log(Level.INFO, "The total price is: {0}",newtTotalPrice);
-					}
+				double newtotalPrice = removeTicket(flight, tickets, client, totalPrice, ticketn);
+				if (totalPrice != newtotalPrice) {
+					cancelTickets++;
+					totalPrice = newtotalPrice;
 				}
 				logger.log(Level.INFO, "Put 1 to cancel another ticket or put other number to continue.");
 				option=read.nextInt();
-				totalPrice=newtTotalPrice;
-			} while (option==1 && cancel_tickets!=tickets);
-			if(cancel_tickets == tickets){
+			} while (option==1 && cancelTickets!=tickets);
+			if(cancelTickets == tickets){
 				logger.log(Level.WARNING, "It cannot be possible. You cannot cancel more tickets because you do not have it.");
 			}//end if
-			return cancel_tickets;
+			flight.availableSeats += cancelTickets;
 	}//end cancel method.
+	
+	private static double recalculatePrice(FlightLaMancha flight, int tickets, double totalPrice, int oneWayTickets, int returnTickets, int totalSuitcase) {
+		double newTotalPrice = calculateTotalPrice(flight, tickets, oneWayTickets, returnTickets, totalSuitcase);
+		if (newTotalPrice == totalPrice){
+			logger.log(Level.WARNING, "It cannot be possible. You cannot cancel the same ticket twice.");
+		} else {
+			if(totalPrice>0){
+				logger.log(Level.INFO, "The total price is: {0}", newTotalPrice);
+			}
+		}
+		return newTotalPrice;
+	}
 	
 	/*********************************************************************
 	*
@@ -619,19 +614,25 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static void removeTicket(FlightLaMancha flight, int i, int j, int ticketn, int returnTickets, int oneWayTickets, int totalSuitcase, int cancelTickets) {
-		if(flight.tickets [i][j] == ticketn){
-			if(flight.isReturnTickets[i][j]){
-				returnTickets--;
-			} else {
-				oneWayTickets--;
-			}
-			totalSuitcase -= flight.suitcases[i][j];
-			flight.occupiedSeats[i][j]=flight.currentSeats[i][j];
-			flight.tickets[i][j]=0;
-			flight.clients[i][j]=0;
-			cancelTickets++;
-		}//end if
+	public static double removeTicket(FlightLaMancha flight, int tickets, int client, double totalPrice, int ticketn) {
+		int oneWayTickets = 0;
+		int returnTickets = 0;
+		int totalSuitcase=0;
+		for (int i = 0; i < flight.occupiedSeats.length; i++){
+			for (int j = 0; j < flight.occupiedSeats[0].length; j++){
+				if(flight.clients[i][j] == client){
+					if(flight.tickets [i][j] == ticketn){
+						if(flight.isReturnTickets[i][j]) returnTickets--;
+						else oneWayTickets--;
+						totalSuitcase -= flight.suitcases[i][j];
+						flight.occupiedSeats[i][j]=flight.currentSeats[i][j];
+						flight.tickets[i][j]=0;
+						flight.clients[i][j]=0;
+					}//end if
+				}//end if
+			}//end for
+		}//end for
+		return recalculatePrice(flight, tickets, totalPrice, oneWayTickets, returnTickets, totalSuitcase);
 	}
 	
 	/*********************************************************************
@@ -828,7 +829,10 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	public static double calculateTotalPrice(FlightLaMancha flight,int oneWayTickets,int returnTickets,int tickets,int totalSuitcase){
-		double discount=0.75,suitcasePrice=15,group=6,discountGroup=0.8;
+		double discount=0.75;
+		double suitcasePrice=15;
+		double group=6;
+		double discountGroup=0.8;
 		double oneWayPrice=flight.ticketPrice*oneWayTickets;
 		double returnPrice=2*flight.ticketPrice*returnTickets*discount;
 		double tSuitcasePrice=totalSuitcase*suitcasePrice;
@@ -859,10 +863,9 @@ public class FlightLaMancha {
 	*********************************************************************/ 
 	
 	public static void writePlane(FlightLaMancha flight) throws IOException {
-		int row, column;
 		PrintWriter writer= new PrintWriter(new FileWriter("aircraft.txt"));
-		for(row=0;row<flight.occupiedSeats.length;row++){
-			for(column=0;column<flight.occupiedSeats[0].length;column++){
+		for(int row=0;row<flight.occupiedSeats.length;row++){
+			for(int column=0;column<flight.occupiedSeats[0].length;column++){
 				writer.println(flight.occupiedSeats[row][column]);
 			}//end for
 		}//end for
