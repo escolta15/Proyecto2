@@ -515,7 +515,7 @@ public class FlightLaMancha {
 	
 	public static void showTicketInformation(FlightLaMancha flight, int i, int j, int ticketn, int clientsNumber) {
 		if(flight.tickets [i][j] == ticketn){
-			logger.log(Level.INFO, "Client\'s number: {0}", clientsNumber);
+			logger.log(Level.INFO, "Number of the client: {0}", clientsNumber);
 			logger.log(Level.INFO, "Ticket number {0}: ", ticketn);
 			logger.log(Level.INFO, "Position: {0}.", flight.currentSeats[i][j]);
 			if(flight.isReturnTickets[i][j]){
@@ -617,18 +617,16 @@ public class FlightLaMancha {
 	public static double removeTicket(FlightLaMancha flight, int tickets, int client, double totalPrice, int ticketn) {
 		int oneWayTickets = 0;
 		int returnTickets = 0;
-		int totalSuitcase=0;
+		int totalSuitcase = 0;
 		for (int i = 0; i < flight.occupiedSeats.length; i++){
 			for (int j = 0; j < flight.occupiedSeats[0].length; j++){
-				if(flight.clients[i][j] == client){
-					if(flight.tickets [i][j] == ticketn){
-						if(flight.isReturnTickets[i][j]) returnTickets--;
-						else oneWayTickets--;
-						totalSuitcase -= flight.suitcases[i][j];
-						flight.occupiedSeats[i][j]=flight.currentSeats[i][j];
-						flight.tickets[i][j]=0;
-						flight.clients[i][j]=0;
-					}//end if
+				if(flight.clients[i][j] == client && flight.tickets [i][j] == ticketn){
+					if(flight.isReturnTickets[i][j]) returnTickets--;
+					else oneWayTickets--;
+					totalSuitcase -= flight.suitcases[i][j];
+					flight.occupiedSeats[i][j]=flight.currentSeats[i][j];
+					flight.tickets[i][j]=0;
+					flight.clients[i][j]=0;
 				}//end if
 			}//end for
 		}//end for
@@ -828,7 +826,7 @@ public class FlightLaMancha {
 	*
 	*********************************************************************/ 
 	
-	public static double calculateTotalPrice(FlightLaMancha flight,int oneWayTickets,int returnTickets,int tickets,int totalSuitcase){
+	public static double calculateTotalPrice(FlightLaMancha flight, int tickets, int oneWayTickets,int returnTickets,int totalSuitcase){
 		double discount=0.75;
 		double suitcasePrice=15;
 		double group=6;
